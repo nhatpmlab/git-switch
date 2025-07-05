@@ -336,4 +336,9 @@ Ví dụ:
   git-profile-cli remove      # Xóa profile
 
 Lưu ý: Bạn có thể cần mở terminal mới để các lệnh hoạt động.
-" 
+"
+
+# Tự động chạy menu
+echo "Đang khởi động menu..."
+sleep 1
+"$INSTALL_DIR/git_profile_menu.py" 
