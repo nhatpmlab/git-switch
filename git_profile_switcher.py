@@ -101,16 +101,47 @@ def show_ssh_instructions(key_file, profile_name):
     
     # Mở trang GitHub SSH settings
     print("\nĐang mở trang cài đặt SSH key của GitHub...")
-    open_github_ssh_settings()
+    webbrowser.open('https://github.com/settings/ssh/new')
     
-    print("\n2. Paste public key vào ô 'Key'")
-    print(f"3. Đặt tiêu đề: '{profile_name} - Git Profile Manager'")
-    print("4. Nhấn 'Add SSH key' để lưu")
+    print("\nHướng dẫn thêm SSH key:")
+    print(f"1. Đặt tiêu đề: '{profile_name} - Git Profile Manager'")
+    print("2. Paste public key vào ô 'Key'")
+    print("3. Nhấn 'Add SSH key' để lưu")
     
-    print(f"\n5. Khi clone repository, sử dụng URL dạng:")
+    print(f"\nSau khi thêm key, khi clone repository, sử dụng URL dạng:")
     print(f"   git@github.com-{profile_name}:username/repository.git")
-    print("\n6. Hoặc cập nhật remote URL của repository hiện tại:")
+    print("\nHoặc cập nhật remote URL của repository hiện tại:")
     print(f"   git remote set-url origin git@github.com-{profile_name}:username/repository.git")
+    
+    # Chờ người dùng xác nhận
+    input("\nSau khi thêm SSH key vào GitHub, nhấn Enter để kiểm tra kết nối...")
+    
+    # Kiểm tra kết nối
+    print("\nĐang kiểm tra kết nối GitHub...")
+    try:
+        result = subprocess.run(
+            ['ssh', '-T', f'git@github.com-{profile_name}'],
+            capture_output=True,
+            text=True,
+            env={'GIT_SSH_COMMAND': f'ssh -i {key_file}'}
+        )
+        
+        if "successfully authenticated" in result.stderr.lower():
+            print("\n✅ Kết nối thành công với GitHub!")
+            print(f"Profile: {profile_name}")
+            print(f"SSH key: {key_file}")
+            return True
+        else:
+            print("\n❌ Kết nối thất bại!")
+            print("Lỗi:", result.stderr)
+            print("\nHãy kiểm tra:")
+            print("1. SSH key đã được thêm vào GitHub chưa?")
+            print("2. SSH key có quyền truy cập đúng không? (chmod 600)")
+            print("3. Cấu hình SSH config có đúng không?")
+            return False
+    except Exception as e:
+        print("\n❌ Lỗi khi kiểm tra kết nối:", str(e))
+        return False
 
 def add_profile():
     """Add a new Git profile."""
