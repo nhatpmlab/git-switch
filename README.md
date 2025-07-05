@@ -1,17 +1,5 @@
 # Git Profile Manager
-
-Công cụ giúp quản lý và chuyển đổi nhanh chóng giữa các tài khoản GitHub khác nhau trên máy local.
-
-## Tính năng
-
-- 🔄 Chuyển đổi nhanh chóng giữa các GitHub profiles
-- 🔑 Tự động tạo và quản lý SSH keys
-- 📋 Tự động copy SSH key vào clipboard
-- 🌐 Tự động mở trang GitHub SSH settings
-- 🔍 Kiểm tra kết nối tự động
-- 🔄 Tự động cập nhật URL repository
-- 📱 Giao diện menu thân thiện
-
+Đây là công cụ giúp switch github profile... 
 ## Cài đặt
 
 Chạy lệnh sau để cài đặt:
@@ -20,32 +8,11 @@ Chạy lệnh sau để cài đặt:
 curl -o install.sh https://raw.githubusercontent.com/nhatpm3124/git-switch/main/install.sh && chmod +x install.sh && ./install.sh
 ```
 
-## Sử dụng
 
-### Lệnh có sẵn
+Lưu ý: 
+1. Chạy project tại terminal trong repo -> nếu bạn muốn switch người push code trong dự án
+2. Chạy project tại terminal ngoài repo -> nếu bạn muốn setup ssh key mới
 
-- `git-profile`: Khởi động chương trình
-- `git-profile-update`: Cập nhật phiên bản mới
-
-### Menu chính
-
-```
-╔═══════════════════════════════════════╗
-║        Git Profile Manager            ║
-║        ------------------            ║
-║  Quản lý nhiều tài khoản Git        ║
-╚═══════════════════════════════════════╝
-
-Chọn một tùy chọn:
-1. Thêm profile mới
-2. Chuyển đổi profile
-3. Xem profile hiện tại
-4. Xem danh sách profiles
-5. Xóa profile
-6. Kiểm tra kết nối GitHub
-7. Cập nhật URL repository
-0. Thoát
-```
 
 ### Thêm profile mới
 
