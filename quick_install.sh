@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Cài đặt thư viện pyperclip
+echo "Đang cài đặt các thư viện cần thiết..."
+python3 -m pip install --user pyperclip
+
 # Tạo thư mục cài đặt
 INSTALL_DIR="$HOME/.git-profile-manager"
 mkdir -p "$INSTALL_DIR"

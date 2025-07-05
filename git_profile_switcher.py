@@ -3,6 +3,8 @@ import json
 import os
 import sys
 import subprocess
+import webbrowser
+import pyperclip  # Thêm thư viện để copy vào clipboard
 from pathlib import Path
 
 CONFIG_FILE = Path.home() / '.git_profiles.json'
@@ -68,19 +70,46 @@ Host github.com-{profile_name}
     
     return str(key_file)
 
+def open_github_ssh_settings():
+    """Mở trang cài đặt SSH key của GitHub."""
+    webbrowser.open('https://github.com/settings/ssh/new')
+
+def copy_to_clipboard(text):
+    """Copy text vào clipboard."""
+    try:
+        pyperclip.copy(text)
+        return True
+    except:
+        return False
+
 def show_ssh_instructions(key_file, profile_name):
     """Show instructions for setting up SSH key with GitHub."""
     print("\n=== Hướng dẫn cài đặt SSH key cho GitHub ===")
     print("1. Copy SSH public key sau đây:")
     print("-" * 50)
+    
+    # Đọc và copy public key
     with open(f"{key_file}.pub", 'r') as f:
-        print(f.read().strip())
+        public_key = f.read().strip()
+        print(public_key)
+        if copy_to_clipboard(public_key):
+            print("\n✅ Đã copy public key vào clipboard!")
+        else:
+            print("\n❌ Không thể copy vào clipboard. Vui lòng copy thủ công.")
+    
     print("-" * 50)
-    print("\n2. Truy cập GitHub -> Settings -> SSH and GPG keys -> New SSH key")
-    print("3. Paste public key vào và lưu")
-    print(f"\n4. Khi clone repository, sử dụng URL dạng:")
+    
+    # Mở trang GitHub SSH settings
+    print("\nĐang mở trang cài đặt SSH key của GitHub...")
+    open_github_ssh_settings()
+    
+    print("\n2. Paste public key vào ô 'Key'")
+    print(f"3. Đặt tiêu đề: '{profile_name} - Git Profile Manager'")
+    print("4. Nhấn 'Add SSH key' để lưu")
+    
+    print(f"\n5. Khi clone repository, sử dụng URL dạng:")
     print(f"   git@github.com-{profile_name}:username/repository.git")
-    print("\n5. Hoặc cập nhật remote URL của repository hiện tại:")
+    print("\n6. Hoặc cập nhật remote URL của repository hiện tại:")
     print(f"   git remote set-url origin git@github.com-{profile_name}:username/repository.git")
 
 def add_profile():
@@ -110,8 +139,29 @@ def add_profile():
     set_git_config(name, email)
     print(f"\nĐã thêm và kích hoạt profile '{profile_name}' thành công!")
     
-    # Show SSH setup instructions
+    # Show SSH setup instructions and open browser
     show_ssh_instructions(key_file, profile_name)
+    
+    # Chờ người dùng xác nhận đã thêm key
+    input("\nNhấn Enter sau khi đã thêm SSH key vào GitHub...")
+    
+    # Kiểm tra kết nối
+    print("\nĐang kiểm tra kết nối GitHub...")
+    try:
+        result = subprocess.run(
+            ['ssh', '-T', f'git@github.com-{profile_name}'],
+            capture_output=True,
+            text=True,
+            env={'GIT_SSH_COMMAND': f'ssh -i {key_file}'}
+        )
+        
+        if "successfully authenticated" in result.stderr.lower():
+            print("\n✅ Kết nối thành công với GitHub!")
+        else:
+            print("\n❌ Kết nối thất bại!")
+            print("Lỗi:", result.stderr)
+    except Exception as e:
+        print("\n❌ Lỗi khi kiểm tra kết nối:", str(e))
 
 def switch_profile():
     """Switch to a different Git profile."""
