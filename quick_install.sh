@@ -1,8 +1,14 @@
 #!/bin/bash
 
-# Cài đặt thư viện pyperclip
+# Cài đặt các thư viện cần thiết
 echo "Đang cài đặt các thư viện cần thiết..."
 python3 -m pip install --user pyperclip
+
+# Kiểm tra module webbrowser
+python3 -c "import webbrowser" 2>/dev/null || {
+    echo "Đang cài đặt module webbrowser..."
+    python3 -m pip install --user webbrowser
+}
 
 # Tạo thư mục cài đặt
 INSTALL_DIR="$HOME/.git-profile-manager"

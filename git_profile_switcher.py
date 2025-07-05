@@ -72,7 +72,20 @@ Host github.com-{profile_name}
 
 def open_github_ssh_settings():
     """Mở trang cài đặt SSH key của GitHub."""
-    webbrowser.open('https://github.com/settings/ssh/new')
+    try:
+        # Thử mở bằng webbrowser
+        if not webbrowser.open('https://github.com/settings/ssh/new'):
+            # Nếu không mở được, thử các lệnh hệ thống
+            if sys.platform == 'darwin':  # macOS
+                subprocess.run(['open', 'https://github.com/settings/ssh/new'])
+            elif sys.platform == 'win32':  # Windows
+                subprocess.run(['start', 'https://github.com/settings/ssh/new'], shell=True)
+            else:  # Linux và các hệ điều hành khác
+                subprocess.run(['xdg-open', 'https://github.com/settings/ssh/new'])
+    except Exception as e:
+        print("\n❌ Không thể mở trình duyệt tự động.")
+        print("Vui lòng truy cập URL sau:")
+        print("https://github.com/settings/ssh/new")
 
 def copy_to_clipboard(text):
     """Copy text vào clipboard."""
@@ -101,7 +114,7 @@ def show_ssh_instructions(key_file, profile_name):
     
     # Mở trang GitHub SSH settings
     print("\nĐang mở trang cài đặt SSH key của GitHub...")
-    webbrowser.open('https://github.com/settings/ssh/new')
+    open_github_ssh_settings()
     
     print("\nHướng dẫn thêm SSH key:")
     print(f"1. Đặt tiêu đề: '{profile_name} - Git Profile Manager'")
