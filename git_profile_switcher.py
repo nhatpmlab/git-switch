@@ -245,19 +245,74 @@ def remove_profile():
         print(f"Profile '{profile_name}' không tồn tại!")
         return
     
-    # Remove SSH keys if they exist
+    # Kiểm tra xem profile này có đang được sử dụng không
+    current_config = get_current_git_config()
     profile = profiles[profile_name]
+    
+    if (current_config and 
+        current_config['name'] == profile['name'] and 
+        current_config['email'] == profile['email']):
+        # Xóa cấu hình Git global
+        print("\nĐang xóa cấu hình Git global...")
+        try:
+            subprocess.run(['git', 'config', '--global', '--unset', 'user.name'])
+            subprocess.run(['git', 'config', '--global', '--unset', 'user.email'])
+            print("✅ Đã xóa cấu hình Git global")
+        except subprocess.CalledProcessError as e:
+            print("❌ Lỗi khi xóa cấu hình Git:", str(e))
+    
+    # Remove SSH keys if they exist
     if 'ssh_key' in profile:
         try:
             os.remove(profile['ssh_key'])
             os.remove(f"{profile['ssh_key']}.pub")
-            print(f"Đã xóa SSH keys của profile '{profile_name}'")
+            print(f"✅ Đã xóa SSH keys của profile '{profile_name}'")
+            
+            # Xóa cấu hình SSH
+            config_file = SSH_DIR / 'config'
+            if config_file.exists():
+                with open(config_file, 'r') as f:
+                    lines = f.readlines()
+                
+                # Tìm và xóa phần cấu hình của profile này
+                new_lines = []
+                skip = False
+                for line in lines:
+                    if f"Git profile: {profile_name}" in line:
+                        skip = True
+                        continue
+                    if skip and line.strip() == "":
+                        skip = False
+                        continue
+                    if not skip:
+                        new_lines.append(line)
+                
+                # Ghi lại file config
+                with open(config_file, 'w') as f:
+                    f.writelines(new_lines)
+                print(f"✅ Đã xóa cấu hình SSH của profile '{profile_name}'")
         except OSError:
             pass
     
     del profiles[profile_name]
     save_profiles(profiles)
-    print(f"\nĐã xóa profile '{profile_name}' thành công!")
+    print(f"\n✅ Đã xóa profile '{profile_name}' thành công!")
+    
+    # Hiển thị hướng dẫn
+    print("\nLưu ý:")
+    print("1. Nếu bạn muốn sử dụng Git, hãy chuyển sang một profile khác")
+    print("2. Hoặc cấu hình Git global mới bằng lệnh:")
+    print("   git config --global user.name \"Tên của bạn\"")
+    print("   git config --global user.email \"email@example.com\"")
+    
+    # Hiển thị các profiles còn lại
+    if profiles:
+        print("\nCác profiles còn lại:")
+        for name in profiles:
+            print(f"- {name}")
+        print("\nBạn có thể chuyển sang một trong các profiles trên.")
+    else:
+        print("\nKhông còn profile nào. Hãy tạo profile mới để sử dụng.")
 
 def test_github_connection(profile_name):
     """Test SSH connection to GitHub for a specific profile."""
