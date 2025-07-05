@@ -4,46 +4,6 @@
 INSTALL_DIR="$HOME/.git-profile-manager"
 mkdir -p "$INSTALL_DIR"
 
-# Cài đặt các thư viện cần thiết
-echo "Đang cài đặt các thư viện cần thiết..."
-
-# Kiểm tra và cài đặt pip nếu cần
-if ! command -v pip3 &> /dev/null; then
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS
-        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-        python3 get-pip.py --user
-        rm get-pip.py
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        # Linux
-        if command -v apt-get &> /dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y python3-pip
-        elif command -v yum &> /dev/null; then
-            sudo yum install -y python3-pip
-        fi
-    elif [[ "$OSTYPE" == "msys" ]]; then
-        # Windows/Git Bash
-        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-        python3 get-pip.py --user
-        rm get-pip.py
-    fi
-fi
-
-# Cài đặt pyperclip
-python3 -m pip install --user pyperclip
-
-# Cài đặt xclip trên Linux nếu cần
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    if ! command -v xclip &> /dev/null; then
-        if command -v apt-get &> /dev/null; then
-            sudo apt-get install -y xclip
-        elif command -v yum &> /dev/null; then
-            sudo yum install -y xclip
-        fi
-    fi
-fi
-
 # Tải file menu.py từ GitHub
 echo "Đang tải Git Profile Manager..."
 curl -s https://raw.githubusercontent.com/nhatpm3124/git-switch/main/menu.py -o "$INSTALL_DIR/menu.py"

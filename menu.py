@@ -111,29 +111,22 @@ def open_github_ssh_settings():
         print("https://github.com/settings/ssh/new")
 
 def copy_to_clipboard(text):
-    """Copy text to clipboard."""
+    """Copy text to clipboard using system commands."""
     try:
-        # Thử sử dụng pyperclip
-        import pyperclip
-        pyperclip.copy(text)
-        return True
+        if sys.platform == 'darwin':  # macOS
+            p = subprocess.Popen(['pbcopy'], stdin=subprocess.PIPE)
+            p.communicate(text.encode())
+            return True
+        elif sys.platform == 'win32':  # Windows
+            p = subprocess.Popen(['clip'], stdin=subprocess.PIPE)
+            p.communicate(text.encode())
+            return True
+        else:  # Linux
+            p = subprocess.Popen(['xclip', '-selection', 'clipboard'], stdin=subprocess.PIPE)
+            p.communicate(text.encode())
+            return True
     except:
-        try:
-            # Thử sử dụng lệnh hệ thống
-            if sys.platform == 'darwin':  # macOS
-                p = subprocess.Popen(['pbcopy'], stdin=subprocess.PIPE)
-                p.communicate(text.encode())
-                return True
-            elif sys.platform == 'win32':  # Windows
-                p = subprocess.Popen(['clip'], stdin=subprocess.PIPE)
-                p.communicate(text.encode())
-                return True
-            else:  # Linux
-                p = subprocess.Popen(['xclip', '-selection', 'clipboard'], stdin=subprocess.PIPE)
-                p.communicate(text.encode())
-                return True
-        except:
-            return False
+        return False
 
 def show_ssh_instructions(key_file, profile_name):
     """Show instructions for setting up SSH key with GitHub."""
@@ -145,10 +138,13 @@ def show_ssh_instructions(key_file, profile_name):
     with open(f"{key_file}.pub", 'r') as f:
         public_key = f.read().strip()
         print(f"{Colors.GREEN}{public_key}{Colors.ENDC}")
+        
+        # Tự động copy vào clipboard
         if copy_to_clipboard(public_key):
-            print(f"\n{Colors.GREEN}✅ Đã copy public key vào clipboard!{Colors.ENDC}")
+            print(f"\n{Colors.GREEN}✅ Đã tự động copy SSH key vào clipboard!{Colors.ENDC}")
+            print(f"{Colors.YELLOW}Bạn có thể dùng Ctrl+V (Windows/Linux) hoặc Command+V (macOS) để paste{Colors.ENDC}")
         else:
-            print(f"\n{Colors.RED}❌ Không thể copy vào clipboard. Vui lòng copy thủ công.{Colors.ENDC}")
+            print(f"\n{Colors.RED}❌ Không thể copy tự động. Vui lòng copy thủ công.{Colors.ENDC}")
     
     print(f"{Colors.CYAN}" + "-" * 50 + Colors.ENDC)
     
@@ -158,7 +154,7 @@ def show_ssh_instructions(key_file, profile_name):
     
     print(f"\n{Colors.BOLD}Hướng dẫn thêm SSH key:{Colors.ENDC}")
     print(f"{Colors.GREEN}1. Đặt tiêu đề: '{profile_name} - Git Profile Manager'{Colors.ENDC}")
-    print(f"{Colors.YELLOW}2. Paste public key vào ô 'Key' (Ctrl+V hoặc Command+V){Colors.ENDC}")
+    print(f"{Colors.YELLOW}2. Paste SSH key vào ô 'Key' (đã được copy vào clipboard){Colors.ENDC}")
     print(f"{Colors.CYAN}3. Nhấn 'Add SSH key' để lưu{Colors.ENDC}")
     
     print(f"\n{Colors.BOLD}Sau khi thêm key, khi clone repository, sử dụng URL dạng:{Colors.ENDC}")
