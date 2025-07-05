@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-
-# Tạo nội dung của menu.py
-menu_content = '''#!/usr/bin/env python3
 import os
 import sys
 import subprocess
@@ -31,13 +28,11 @@ def clear_screen():
 
 def print_header():
     """Print the application header."""
-    print(f"""
-{Colors.CYAN}╔═══════════════════════════════════════╗{Colors.ENDC}
-{Colors.CYAN}║{Colors.BOLD}        Git Profile Manager            {Colors.ENDC}{Colors.CYAN}║{Colors.ENDC}
-{Colors.CYAN}║{Colors.YELLOW}        ------------------            {Colors.ENDC}{Colors.CYAN}║{Colors.ENDC}
-{Colors.CYAN}║{Colors.GREEN}  Quản lý nhiều tài khoản Git        {Colors.ENDC}{Colors.CYAN}║{Colors.ENDC}
-{Colors.CYAN}╚═══════════════════════════════════════╝{Colors.ENDC}
-""")
+    print(f"{Colors.CYAN}╔═══════════════════════════════════════╗{Colors.ENDC}")
+    print(f"{Colors.CYAN}║{Colors.BOLD}        Git Profile Manager            {Colors.ENDC}{Colors.CYAN}║{Colors.ENDC}")
+    print(f"{Colors.CYAN}║{Colors.YELLOW}        ------------------            {Colors.ENDC}{Colors.CYAN}║{Colors.ENDC}")
+    print(f"{Colors.CYAN}║{Colors.GREEN}  Quản lý nhiều tài khoản Git        {Colors.ENDC}{Colors.CYAN}║{Colors.ENDC}")
+    print(f"{Colors.CYAN}╚═══════════════════════════════════════╝{Colors.ENDC}")
 
 def load_profiles():
     """Load profiles from config file."""
@@ -186,6 +181,16 @@ def add_profile():
     
     # Generate SSH key
     key_file = generate_ssh_key(email, profile_name)
+    
+    # Thêm GitHub host key vào known_hosts
+    try:
+        subprocess.run(
+            ['ssh-keyscan', '-t', 'rsa', 'github.com'],
+            stdout=open(os.path.expanduser('~/.ssh/known_hosts'), 'a'),
+            stderr=subprocess.DEVNULL
+        )
+    except:
+        pass
     
     profiles[profile_name] = {
         'name': name,
@@ -349,6 +354,80 @@ def remove_profile():
     else:
         print(f"\n{Colors.RED}Không còn profile nào. Hãy tạo profile mới để sử dụng.{Colors.ENDC}")
 
+def test_connection():
+    """Test GitHub connection for current profile."""
+    current = get_current_git_config()
+    if not current:
+        print(f"\n{Colors.RED}Chưa cấu hình Git global!{Colors.ENDC}")
+        return
+    
+    profiles = load_profiles()
+    current_profile = None
+    
+    # Tìm profile hiện tại
+    for name, profile in profiles.items():
+        if profile['name'] == current['name'] and profile['email'] == current['email']:
+            current_profile = name
+            break
+    
+    if not current_profile:
+        print(f"\n{Colors.RED}Không tìm thấy profile cho cấu hình Git hiện tại!{Colors.ENDC}")
+        return
+    
+    if 'ssh_key' not in profiles[current_profile]:
+        print(f"\n{Colors.RED}Profile '{current_profile}' không có SSH key!{Colors.ENDC}")
+        return
+    
+    # Kiểm tra kết nối
+    print(f"\n{Colors.CYAN}Đang kiểm tra kết nối GitHub cho profile '{current_profile}'...{Colors.ENDC}")
+    try:
+        # Thêm GitHub host key vào known_hosts
+        subprocess.run(
+            ['ssh-keyscan', '-t', 'rsa', 'github.com'],
+            stdout=open(os.path.expanduser('~/.ssh/known_hosts'), 'a'),
+            stderr=subprocess.DEVNULL
+        )
+        
+        # Kiểm tra kết nối
+        result = subprocess.run(
+            ['ssh', '-T', f'git@github.com-{current_profile}'],
+            capture_output=True,
+            text=True,
+            env={'GIT_SSH_COMMAND': f'ssh -i {profiles[current_profile]["ssh_key"]}'}
+        )
+        
+        if "successfully authenticated" in result.stderr.lower():
+            print(f"\n{Colors.GREEN}✅ Kết nối thành công với GitHub!{Colors.ENDC}")
+            print(f"{Colors.BLUE}Profile: {current_profile}{Colors.ENDC}")
+            print(f"{Colors.GREEN}Tên: {current['name']}{Colors.ENDC}")
+            print(f"{Colors.BLUE}Email: {current['email']}{Colors.ENDC}")
+            print(f"{Colors.CYAN}SSH key: {profiles[current_profile]['ssh_key']}{Colors.ENDC}")
+        else:
+            print(f"\n{Colors.RED}❌ Kết nối thất bại!{Colors.ENDC}")
+            print(f"{Colors.YELLOW}Lỗi: {result.stderr}{Colors.ENDC}")
+            print(f"\n{Colors.BOLD}Hãy kiểm tra:{Colors.ENDC}")
+            print(f"{Colors.CYAN}1. SSH key đã được thêm vào GitHub chưa?{Colors.ENDC}")
+            print(f"{Colors.CYAN}2. SSH key có quyền truy cập đúng không? (chmod 600){Colors.ENDC}")
+            print(f"{Colors.CYAN}3. Cấu hình SSH config có đúng không?{Colors.ENDC}")
+            
+            # Hiển thị public key để thêm vào GitHub
+            key_file = profiles[current_profile]['ssh_key']
+            print(f"\n{Colors.YELLOW}Public key của profile này:{Colors.ENDC}")
+            print(f"{Colors.CYAN}" + "-" * 50 + Colors.ENDC)
+            with open(f"{key_file}.pub", 'r') as f:
+                public_key = f.read().strip()
+                print(f"{Colors.GREEN}{public_key}{Colors.ENDC}")
+            print(f"{Colors.CYAN}" + "-" * 50 + Colors.ENDC)
+            
+            # Hỏi người dùng có muốn mở trang GitHub SSH settings không
+            choice = input(f"\n{Colors.YELLOW}Bạn có muốn mở trang GitHub SSH settings để thêm key không? (y/N): {Colors.ENDC}").strip().lower()
+            if choice == 'y':
+                print(f"\n{Colors.BLUE}Đang mở trang cài đặt SSH key của GitHub...{Colors.ENDC}")
+                open_github_ssh_settings()
+    
+    except Exception as e:
+        print(f"\n{Colors.RED}❌ Lỗi khi kiểm tra kết nối: {str(e)}{Colors.ENDC}")
+
 def print_menu():
     """Print the main menu."""
     profiles = load_profiles()
@@ -360,6 +439,7 @@ def print_menu():
     print(f"{Colors.CYAN}3. Xem profile hiện tại{Colors.ENDC}")
     print(f"{Colors.YELLOW}4. Xem danh sách profiles{Colors.ENDC}" + (f" {Colors.GREEN}({profile_count}){Colors.ENDC}" if profile_count > 0 else ""))
     print(f"{Colors.RED}5. Xóa profile{Colors.ENDC}")
+    print(f"{Colors.BLUE}6. Kiểm tra kết nối GitHub{Colors.ENDC}")
     print(f"{Colors.RED}0. Thoát{Colors.ENDC}")
 
 def print_status_bar():
@@ -386,6 +466,8 @@ def handle_choice(choice):
         list_profiles()
     elif choice == "5":
         remove_profile()
+    elif choice == "6":
+        test_connection()
     elif choice == "0":
         print(f"\n{Colors.GREEN}Cảm ơn bạn đã sử dụng Git Profile Manager!{Colors.ENDC}")
         sys.exit(0)
@@ -402,7 +484,7 @@ def main():
         print_status_bar()
         print_menu()
         
-        choice = input(f"\n{Colors.BOLD}Nhập lựa chọn của bạn (0-5): {Colors.ENDC}").strip()
+        choice = input(f"\n{Colors.BOLD}Nhập lựa chọn của bạn (0-6): {Colors.ENDC}").strip()
         handle_choice(choice)
 
 if __name__ == '__main__':
@@ -411,15 +493,3 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print(f"\n\n{Colors.RED}Đã thoát chương trình.{Colors.ENDC}")
         sys.exit(0)
-'''
-
-# Tạo file menu.py
-with open('menu.py', 'w') as f:
-    f.write(menu_content)
-
-# Cấp quyền thực thi
-import os
-os.chmod('menu.py', 0o755)
-
-print("Đã tạo file menu.py. Chạy lệnh sau để khởi động menu:")
-print("python3 menu.py") 

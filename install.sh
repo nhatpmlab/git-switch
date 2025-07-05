@@ -4,32 +4,31 @@
 INSTALL_DIR="$HOME/.git-profile-manager"
 mkdir -p "$INSTALL_DIR"
 
-# Tải các file từ GitHub
+# Tải file menu.py từ GitHub
 echo "Đang tải Git Profile Manager..."
-curl -s https://raw.githubusercontent.com/nhatpm3124/git-switch/main/git_profile_switcher.py -o "$INSTALL_DIR/git_profile_switcher.py"
-curl -s https://raw.githubusercontent.com/nhatpm3124/git-switch/main/git_profile_menu.py -o "$INSTALL_DIR/git_profile_menu.py"
+curl -s https://raw.githubusercontent.com/nhatpm3124/git-switch/main/menu.py -o "$INSTALL_DIR/menu.py"
 
 # Cấp quyền thực thi
-chmod +x "$INSTALL_DIR/git_profile_switcher.py"
-chmod +x "$INSTALL_DIR/git_profile_menu.py"
+chmod +x "$INSTALL_DIR/menu.py"
 
-# Tạo symbolic links trong /usr/local/bin
-echo "Tạo shortcuts..."
-sudo ln -sf "$INSTALL_DIR/git_profile_menu.py" /usr/local/bin/git-profile
-sudo ln -sf "$INSTALL_DIR/git_profile_switcher.py" /usr/local/bin/git-profile-cli
+# Tạo symbolic link
+mkdir -p "$HOME/.local/bin"
+ln -sf "$INSTALL_DIR/menu.py" "$HOME/.local/bin/git-profile"
+
+# Thêm ~/.local/bin vào PATH nếu chưa có
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+fi
 
 echo "
 Git Profile Manager đã được cài đặt thành công!
 
-Sử dụng:
-  git-profile      : Chạy menu tương tác
-  git-profile-cli  : Chạy từ command line
+Sử dụng lệnh 'git-profile' để khởi động chương trình.
 
-Ví dụ:
-  git-profile                  # Mở menu
-  git-profile-cli add         # Thêm profile mới
-  git-profile-cli switch      # Chuyển đổi profile
-  git-profile-cli current     # Xem profile hiện tại
-  git-profile-cli list        # Xem danh sách profiles
-  git-profile-cli remove      # Xóa profile
-" 
+Lưu ý: Bạn có thể cần mở terminal mới để lệnh hoạt động.
+
+Đang khởi động Git Profile Manager..."
+
+# Chạy chương trình
+"$INSTALL_DIR/menu.py" 
