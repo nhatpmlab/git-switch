@@ -195,40 +195,29 @@ def add_profile():
     profiles = load_profiles()
     
     print(f"\n{Colors.BOLD}=== Thêm Profile Git Mới ==={Colors.ENDC}")
-    profile_name = input(f"{Colors.YELLOW}Nhập tên profile: {Colors.ENDC}").strip()
+    username = input(f"{Colors.YELLOW}Nhập username GitHub: {Colors.ENDC}").strip()
     
-    if profile_name in profiles:
-        print(f"\n{Colors.RED}Profile '{profile_name}' đã tồn tại!{Colors.ENDC}")
+    if username in profiles:
+        print(f"\n{Colors.RED}Profile '{username}' đã tồn tại!{Colors.ENDC}")
         return
     
-    name = input(f"{Colors.GREEN}Nhập tên người dùng Git: {Colors.ENDC}").strip()
     email = input(f"{Colors.BLUE}Nhập email Git: {Colors.ENDC}").strip()
     
     # Generate SSH key
-    key_file = generate_ssh_key(email, profile_name)
+    key_file = generate_ssh_key(email, username)
     
-    # Thêm GitHub host key vào known_hosts
-    try:
-        subprocess.run(
-            ['ssh-keyscan', '-t', 'rsa', 'github.com'],
-            stdout=open(os.path.expanduser('~/.ssh/known_hosts'), 'a'),
-            stderr=subprocess.DEVNULL
-        )
-    except:
-        pass
-    
-    profiles[profile_name] = {
-        'name': name,
+    profiles[username] = {
+        'name': username,
         'email': email,
         'ssh_key': key_file
     }
     
     save_profiles(profiles)
-    set_git_config(name, email)
-    print(f"\n{Colors.GREEN}✅ Đã thêm và kích hoạt profile '{profile_name}' thành công!{Colors.ENDC}")
+    set_git_config(username, email)
+    print(f"\n{Colors.GREEN}✅ Đã thêm và kích hoạt profile '{username}' thành công!{Colors.ENDC}")
     
     # Show SSH setup instructions
-    show_ssh_instructions(key_file, profile_name)
+    show_ssh_instructions(key_file, username)
 
 def update_repository_url_for_profile(profile_name):
     """Update repository URL for a specific profile."""
