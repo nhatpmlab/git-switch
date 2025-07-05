@@ -110,16 +110,45 @@ def open_github_ssh_settings():
         print(f"{Colors.YELLOW}Vui lòng truy cập URL sau:{Colors.ENDC}")
         print("https://github.com/settings/ssh/new")
 
+def copy_to_clipboard(text):
+    """Copy text to clipboard."""
+    try:
+        # Thử sử dụng pyperclip
+        import pyperclip
+        pyperclip.copy(text)
+        return True
+    except:
+        try:
+            # Thử sử dụng lệnh hệ thống
+            if sys.platform == 'darwin':  # macOS
+                p = subprocess.Popen(['pbcopy'], stdin=subprocess.PIPE)
+                p.communicate(text.encode())
+                return True
+            elif sys.platform == 'win32':  # Windows
+                p = subprocess.Popen(['clip'], stdin=subprocess.PIPE)
+                p.communicate(text.encode())
+                return True
+            else:  # Linux
+                p = subprocess.Popen(['xclip', '-selection', 'clipboard'], stdin=subprocess.PIPE)
+                p.communicate(text.encode())
+                return True
+        except:
+            return False
+
 def show_ssh_instructions(key_file, profile_name):
     """Show instructions for setting up SSH key with GitHub."""
     print(f"\n{Colors.BOLD}=== Hướng dẫn cài đặt SSH key cho GitHub ==={Colors.ENDC}")
     print(f"{Colors.YELLOW}1. Copy SSH public key sau đây:{Colors.ENDC}")
     print(f"{Colors.CYAN}" + "-" * 50 + Colors.ENDC)
     
-    # Đọc và hiển thị public key
+    # Đọc và copy public key
     with open(f"{key_file}.pub", 'r') as f:
         public_key = f.read().strip()
         print(f"{Colors.GREEN}{public_key}{Colors.ENDC}")
+        if copy_to_clipboard(public_key):
+            print(f"\n{Colors.GREEN}✅ Đã copy public key vào clipboard!{Colors.ENDC}")
+        else:
+            print(f"\n{Colors.RED}❌ Không thể copy vào clipboard. Vui lòng copy thủ công.{Colors.ENDC}")
     
     print(f"{Colors.CYAN}" + "-" * 50 + Colors.ENDC)
     
@@ -129,7 +158,7 @@ def show_ssh_instructions(key_file, profile_name):
     
     print(f"\n{Colors.BOLD}Hướng dẫn thêm SSH key:{Colors.ENDC}")
     print(f"{Colors.GREEN}1. Đặt tiêu đề: '{profile_name} - Git Profile Manager'{Colors.ENDC}")
-    print(f"{Colors.YELLOW}2. Paste public key vào ô 'Key'{Colors.ENDC}")
+    print(f"{Colors.YELLOW}2. Paste public key vào ô 'Key' (Ctrl+V hoặc Command+V){Colors.ENDC}")
     print(f"{Colors.CYAN}3. Nhấn 'Add SSH key' để lưu{Colors.ENDC}")
     
     print(f"\n{Colors.BOLD}Sau khi thêm key, khi clone repository, sử dụng URL dạng:{Colors.ENDC}")
@@ -205,6 +234,47 @@ def add_profile():
     # Show SSH setup instructions
     show_ssh_instructions(key_file, profile_name)
 
+def update_repository_url_for_profile(profile_name):
+    """Update repository URL for a specific profile."""
+    # Kiểm tra xem có phải là Git repository không
+    try:
+        subprocess.run(['git', 'rev-parse', '--git-dir'], check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        return
+    
+    # Lấy URL hiện tại
+    try:
+        current_url = subprocess.check_output(['git', 'remote', 'get-url', 'origin']).decode().strip()
+    except:
+        return
+    
+    # Phân tích URL hiện tại
+    if current_url.startswith('git@github.com'):
+        # URL SSH
+        if f'github.com-' in current_url:
+            # URL đã có profile, thay thế profile
+            parts = current_url.split('github.com-')
+            old_profile = parts[1].split(':')[0]
+            new_url = current_url.replace(f'github.com-{old_profile}:', f'github.com-{profile_name}:')
+        else:
+            # URL chưa có profile
+            repo_part = current_url.split('github.com:')[1]
+            new_url = f"git@github.com-{profile_name}:{repo_part}"
+    elif current_url.startswith('https://github.com/'):
+        # URL HTTPS
+        repo_part = current_url.replace('https://github.com/', '')
+        new_url = f"git@github.com-{profile_name}:{repo_part}"
+    else:
+        return
+    
+    # Cập nhật URL
+    try:
+        subprocess.run(['git', 'remote', 'set-url', 'origin', new_url], check=True, capture_output=True)
+        print(f"\n{Colors.GREEN}✅ Đã cập nhật URL repository:{Colors.ENDC}")
+        print(f"{Colors.BLUE}{new_url}{Colors.ENDC}")
+    except:
+        pass
+
 def switch_profile():
     """Switch to a different Git profile."""
     profiles = load_profiles()
@@ -228,9 +298,34 @@ def switch_profile():
     set_git_config(profile['name'], profile['email'])
     print(f"\n{Colors.GREEN}✅ Đã chuyển sang profile '{profile_name}' thành công!{Colors.ENDC}")
     
+    # Cập nhật URL repository nếu đang trong Git repository
+    update_repository_url_for_profile(profile_name)
+    
     if 'ssh_key' in profile:
         print(f"\n{Colors.YELLOW}Lưu ý: Khi clone repository mới, sử dụng URL dạng:{Colors.ENDC}")
         print(f"{Colors.CYAN}git@github.com-{profile_name}:username/repository.git{Colors.ENDC}")
+        
+        # Kiểm tra kết nối
+        print(f"\n{Colors.CYAN}Đang kiểm tra kết nối GitHub...{Colors.ENDC}")
+        try:
+            result = subprocess.run(
+                ['ssh', '-T', f'git@github.com-{profile_name}'],
+                capture_output=True,
+                text=True,
+                env={'GIT_SSH_COMMAND': f'ssh -i {profile["ssh_key"]}'}
+            )
+            
+            if "successfully authenticated" in result.stderr.lower():
+                print(f"{Colors.GREEN}✅ Kết nối thành công!{Colors.ENDC}")
+            else:
+                print(f"{Colors.RED}❌ Kết nối thất bại!{Colors.ENDC}")
+                print(f"{Colors.YELLOW}Lỗi: {result.stderr}{Colors.ENDC}")
+                print(f"\n{Colors.BOLD}Hãy kiểm tra:{Colors.ENDC}")
+                print(f"{Colors.CYAN}1. SSH key đã được thêm vào GitHub chưa?{Colors.ENDC}")
+                print(f"{Colors.CYAN}2. SSH key có quyền truy cập đúng không? (chmod 600){Colors.ENDC}")
+                print(f"{Colors.CYAN}3. Cấu hình SSH config có đúng không?{Colors.ENDC}")
+        except Exception as e:
+            print(f"{Colors.RED}❌ Lỗi khi kiểm tra kết nối: {str(e)}{Colors.ENDC}")
 
 def show_current():
     """Show current Git configuration."""
@@ -428,6 +523,87 @@ def test_connection():
     except Exception as e:
         print(f"\n{Colors.RED}❌ Lỗi khi kiểm tra kết nối: {str(e)}{Colors.ENDC}")
 
+def update_repository_url():
+    """Update repository URL for current profile."""
+    current = get_current_git_config()
+    if not current:
+        print(f"\n{Colors.RED}Chưa cấu hình Git global!{Colors.ENDC}")
+        return
+    
+    profiles = load_profiles()
+    current_profile = None
+    
+    # Tìm profile hiện tại
+    for name, profile in profiles.items():
+        if profile['name'] == current['name'] and profile['email'] == current['email']:
+            current_profile = name
+            break
+    
+    if not current_profile:
+        print(f"\n{Colors.RED}Không tìm thấy profile cho cấu hình Git hiện tại!{Colors.ENDC}")
+        return
+    
+    # Kiểm tra xem có phải là Git repository không
+    try:
+        subprocess.run(['git', 'rev-parse', '--git-dir'], check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        print(f"\n{Colors.RED}Thư mục hiện tại không phải là Git repository!{Colors.ENDC}")
+        return
+    
+    # Lấy URL hiện tại
+    try:
+        current_url = subprocess.check_output(['git', 'remote', 'get-url', 'origin']).decode().strip()
+        print(f"\n{Colors.BOLD}URL hiện tại:{Colors.ENDC}")
+        print(f"{Colors.BLUE}{current_url}{Colors.ENDC}")
+    except:
+        current_url = None
+        print(f"\n{Colors.YELLOW}Chưa có remote origin{Colors.ENDC}")
+    
+    # Phân tích URL hiện tại
+    if current_url:
+        if current_url.startswith('git@github.com'):
+            # URL SSH
+            repo_part = current_url.split('github.com:')[1]
+            new_url = f"git@github.com-{current_profile}:{repo_part}"
+        elif current_url.startswith('https://github.com/'):
+            # URL HTTPS
+            repo_part = current_url.replace('https://github.com/', '')
+            new_url = f"git@github.com-{current_profile}:{repo_part}"
+        else:
+            print(f"\n{Colors.RED}Không hỗ trợ định dạng URL này!{Colors.ENDC}")
+            return
+    else:
+        # Tạo remote origin mới
+        repo_name = input(f"\n{Colors.YELLOW}Nhập tên repository (username/repo): {Colors.ENDC}").strip()
+        new_url = f"git@github.com-{current_profile}:{repo_name}"
+    
+    # Cập nhật hoặc thêm remote
+    try:
+        if current_url:
+            print(f"\n{Colors.CYAN}Đang cập nhật URL remote...{Colors.ENDC}")
+            subprocess.run(['git', 'remote', 'set-url', 'origin', new_url], check=True)
+        else:
+            print(f"\n{Colors.CYAN}Đang thêm remote origin...{Colors.ENDC}")
+            subprocess.run(['git', 'remote', 'add', 'origin', new_url], check=True)
+        
+        print(f"\n{Colors.GREEN}✅ Đã cập nhật URL thành công:{Colors.ENDC}")
+        print(f"{Colors.BLUE}{new_url}{Colors.ENDC}")
+        
+        # Kiểm tra kết nối
+        print(f"\n{Colors.CYAN}Đang kiểm tra kết nối với repository...{Colors.ENDC}")
+        try:
+            subprocess.run(['git', 'fetch'], check=True, capture_output=True)
+            print(f"{Colors.GREEN}✅ Kết nối thành công!{Colors.ENDC}")
+        except subprocess.CalledProcessError as e:
+            print(f"{Colors.RED}❌ Không thể kết nối với repository!{Colors.ENDC}")
+            print(f"{Colors.YELLOW}Lỗi: {e.stderr.decode()}{Colors.ENDC}")
+            print(f"\n{Colors.BOLD}Hãy kiểm tra:{Colors.ENDC}")
+            print(f"{Colors.CYAN}1. Repository có tồn tại không?{Colors.ENDC}")
+            print(f"{Colors.CYAN}2. Bạn có quyền truy cập repository không?{Colors.ENDC}")
+            print(f"{Colors.CYAN}3. SSH key đã được thêm vào GitHub chưa?{Colors.ENDC}")
+    except subprocess.CalledProcessError as e:
+        print(f"\n{Colors.RED}❌ Lỗi khi cập nhật URL: {e.stderr.decode()}{Colors.ENDC}")
+
 def print_menu():
     """Print the main menu."""
     profiles = load_profiles()
@@ -440,6 +616,7 @@ def print_menu():
     print(f"{Colors.YELLOW}4. Xem danh sách profiles{Colors.ENDC}" + (f" {Colors.GREEN}({profile_count}){Colors.ENDC}" if profile_count > 0 else ""))
     print(f"{Colors.RED}5. Xóa profile{Colors.ENDC}")
     print(f"{Colors.BLUE}6. Kiểm tra kết nối GitHub{Colors.ENDC}")
+    print(f"{Colors.GREEN}7. Cập nhật URL repository{Colors.ENDC}")
     print(f"{Colors.RED}0. Thoát{Colors.ENDC}")
 
 def print_status_bar():
@@ -468,6 +645,8 @@ def handle_choice(choice):
         remove_profile()
     elif choice == "6":
         test_connection()
+    elif choice == "7":
+        update_repository_url()
     elif choice == "0":
         print(f"\n{Colors.GREEN}Cảm ơn bạn đã sử dụng Git Profile Manager!{Colors.ENDC}")
         sys.exit(0)
@@ -484,7 +663,7 @@ def main():
         print_status_bar()
         print_menu()
         
-        choice = input(f"\n{Colors.BOLD}Nhập lựa chọn của bạn (0-6): {Colors.ENDC}").strip()
+        choice = input(f"\n{Colors.BOLD}Nhập lựa chọn của bạn (0-7): {Colors.ENDC}").strip()
         handle_choice(choice)
 
 if __name__ == '__main__':
