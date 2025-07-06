@@ -28,11 +28,16 @@ def clear_screen():
 
 def print_header():
     """Print the application header."""
-    print(f"{Colors.CYAN}╔═══════════════════════════════════════╗{Colors.ENDC}")
-    print(f"{Colors.CYAN}║{Colors.BOLD}        Git Profile Manager            {Colors.ENDC}{Colors.CYAN}║{Colors.ENDC}")
-    print(f"{Colors.CYAN}║{Colors.YELLOW}        ------------------            {Colors.ENDC}{Colors.CYAN}║{Colors.ENDC}")
-    print(f"{Colors.CYAN}║{Colors.GREEN}  Quản lý nhiều tài khoản Git        {Colors.ENDC}{Colors.CYAN}║{Colors.ENDC}")
-    print(f"{Colors.CYAN}╚═══════════════════════════════════════╝{Colors.ENDC}")
+    print(f"""
+{Colors.GREEN}   _______ _____ _______ {Colors.CYAN}    ____  ____  ____  ______ _____ __    _____{Colors.ENDC}
+{Colors.GREEN}  / ____(_) __//_  __(_){Colors.CYAN}   / __ \/ __ \/ __ \/ ____//   _// /   / ___/{Colors.ENDC}
+{Colors.GREEN} / / __/ / /_   / /  _  {Colors.CYAN}  / /_/ / /_/ / / / / /_    / / / /    \__ \ {Colors.ENDC}
+{Colors.GREEN}/ /_/ / / __/  / /  (_) {Colors.CYAN} / ____/ _, _/ /_/ / __/  _/ / / /___ ___/ / {Colors.ENDC}
+{Colors.GREEN}\____/_/_/    /_/  (_)  {Colors.CYAN}/_/   /_/ |_|\____/_/    /___//_____//____/  {Colors.ENDC}
+""")
+    
+    # Print status bar
+    print_status_bar()
 
 def load_profiles():
     """Load profiles from config file."""
@@ -589,30 +594,137 @@ def update_repository_url():
     except subprocess.CalledProcessError as e:
         print(f"\n{Colors.RED}❌ Lỗi khi cập nhật URL: {e.stderr.decode()}{Colors.ENDC}")
 
+def get_github_account():
+    """Get current GitHub account username."""
+    # Lấy thông tin profile hiện tại
+    current = get_current_git_config()
+    if not current:
+        return None
+    
+    # Tìm SSH key của profile hiện tại
+    profiles = load_profiles()
+    current_profile = None
+    for name, profile in profiles.items():
+        if profile['name'] == current['name'] and profile['email'] == current['email']:
+            current_profile = profile
+            break
+    
+    if not current_profile or 'ssh_key' not in current_profile:
+        return None
+    
+    try:
+        # Sử dụng SSH key của profile hiện tại
+        result = subprocess.run(
+            ['ssh', '-T', 'git@github.com'],
+            capture_output=True,
+            text=True,
+            env={'GIT_SSH_COMMAND': f'ssh -i {current_profile["ssh_key"]}'}
+        )
+        
+        if "successfully authenticated" in result.stderr.lower():
+            # Trích xuất username từ thông báo
+            return result.stderr.split("Hi ")[1].split("!")[0]
+    except:
+        pass
+    return None
+
+def check_github_account():
+    """Check current GitHub account."""
+    print(f"\n{Colors.BOLD}=== Kiểm tra tài khoản GitHub ==={Colors.ENDC}")
+    
+    # Lấy thông tin profile hiện tại
+    current = get_current_git_config()
+    if not current:
+        print(f"\n{Colors.RED}❌ Chưa cấu hình Git global!{Colors.ENDC}")
+        return False
+    
+    # Tìm SSH key của profile hiện tại
+    profiles = load_profiles()
+    current_profile = None
+    for name, profile in profiles.items():
+        if profile['name'] == current['name'] and profile['email'] == current['email']:
+            current_profile = profile
+            break
+    
+    if not current_profile:
+        print(f"\n{Colors.RED}❌ Không tìm thấy profile cho cấu hình Git hiện tại!{Colors.ENDC}")
+        return False
+    
+    if 'ssh_key' not in current_profile:
+        print(f"\n{Colors.RED}❌ Profile không có SSH key!{Colors.ENDC}")
+        return False
+    
+    # Kiểm tra kết nối và lấy username
+    try:
+        result = subprocess.run(
+            ['ssh', '-T', 'git@github.com'],
+            capture_output=True,
+            text=True,
+            env={'GIT_SSH_COMMAND': f'ssh -i {current_profile["ssh_key"]}'}
+        )
+        
+        if "successfully authenticated" in result.stderr.lower():
+            # Trích xuất username từ thông báo
+            username = result.stderr.split("Hi ")[1].split("!")[0]
+            print(f"\n{Colors.GREEN}✅ Đã đăng nhập vào GitHub với tài khoản:{Colors.ENDC}")
+            print(f"{Colors.BLUE}Username: {username}{Colors.ENDC}")
+            
+            # Kiểm tra xem có khớp với profile không
+            if username != current['name']:
+                print(f"\n{Colors.RED}⚠️  Chú ý: Tên Git ({current['name']}) khác với tài khoản GitHub ({username}){Colors.ENDC}")
+            
+            print(f"\n{Colors.YELLOW}Profile Git hiện tại:{Colors.ENDC}")
+            print(f"{Colors.GREEN}Tên: {current['name']}{Colors.ENDC}")
+            print(f"{Colors.BLUE}Email: {current['email']}{Colors.ENDC}")
+            print(f"{Colors.CYAN}SSH key: {current_profile['ssh_key']}{Colors.ENDC}")
+            
+            return True
+        else:
+            print(f"\n{Colors.RED}❌ Không thể xác thực với GitHub!{Colors.ENDC}")
+            print(f"{Colors.YELLOW}Lỗi: {result.stderr}{Colors.ENDC}")
+            return False
+    except Exception as e:
+        print(f"\n{Colors.RED}❌ Lỗi khi kiểm tra tài khoản: {str(e)}{Colors.ENDC}")
+        return False
+
+def print_status_bar():
+    """Print status bar with current profile and GitHub account."""
+    # Get Git config
+    current = get_current_git_config()
+    
+    # Get GitHub account
+    github_user = get_github_account()
+    
+    if current or github_user:
+        print(f"{Colors.BOLD}:: Current Status ::{Colors.ENDC}")
+        
+        if current:
+            print(f"\n{Colors.YELLOW}Git Profile:{Colors.ENDC}")
+            print(f"{Colors.GREEN}Name: {current['name']}{Colors.ENDC}")
+            print(f"{Colors.BLUE}Email: {current['email']}{Colors.ENDC}")
+        
+        if github_user:
+            print(f"\n{Colors.YELLOW}GitHub Account:{Colors.ENDC}")
+            print(f"{Colors.CYAN}Username: {github_user}{Colors.ENDC}")
+            
+            # Check for mismatch
+            if current and current['name'] != github_user:
+                print(f"{Colors.RED}⚠️  Warning: Git name ({current['name']}) differs from GitHub account ({github_user}){Colors.ENDC}")
+    else:
+        print(f"\n{Colors.RED}No Git configuration and GitHub connection!{Colors.ENDC}")
+
 def print_menu():
     """Print the main menu."""
     profiles = load_profiles()
     profile_count = len(profiles)
     
-    print(f"\n{Colors.BOLD}Chọn một tùy chọn:{Colors.ENDC}")
-    print(f"{Colors.GREEN}1. Thêm profile mới{Colors.ENDC}")
-    print(f"{Colors.BLUE}2. Chuyển đổi profile{Colors.ENDC}" + (f" {Colors.YELLOW}({profile_count} profiles){Colors.ENDC}" if profile_count > 0 else ""))
-    print(f"{Colors.CYAN}3. Xem profile hiện tại{Colors.ENDC}")
-    print(f"{Colors.YELLOW}4. Xem danh sách profiles{Colors.ENDC}" + (f" {Colors.GREEN}({profile_count}){Colors.ENDC}" if profile_count > 0 else ""))
-    print(f"{Colors.RED}5. Xóa profile{Colors.ENDC}")
-    print(f"{Colors.BLUE}6. Kiểm tra kết nối GitHub{Colors.ENDC}")
-    print(f"{Colors.GREEN}7. Cập nhật URL repository{Colors.ENDC}")
-    print(f"{Colors.RED}0. Thoát{Colors.ENDC}")
-
-def print_status_bar():
-    """Print status bar with current profile."""
-    current = get_current_git_config()
-    if current:
-        print(f"\n{Colors.BOLD}Profile hiện tại:{Colors.ENDC}")
-        print(f"{Colors.GREEN}Tên: {current['name']}{Colors.ENDC}")
-        print(f"{Colors.BLUE}Email: {current['email']}{Colors.ENDC}")
-    else:
-        print(f"\n{Colors.YELLOW}Chưa cấu hình Git global!{Colors.ENDC}")
+    print(f"\n{Colors.BOLD}:: Available Commands ::{Colors.ENDC}")
+    print(f"{Colors.GREEN}1. Add New Profile{Colors.ENDC}")
+    print(f"{Colors.BLUE}2. Switch Profile{Colors.ENDC}" + (f" {Colors.YELLOW}({profile_count} profiles){Colors.ENDC}" if profile_count > 0 else ""))
+    print(f"{Colors.YELLOW}3. List All Profiles{Colors.ENDC}" + (f" {Colors.GREEN}({profile_count}){Colors.ENDC}" if profile_count > 0 else ""))
+    print(f"{Colors.RED}4. Remove Profile{Colors.ENDC}")
+    print(f"{Colors.BLUE}5. Test GitHub Connection{Colors.ENDC}")
+    print(f"{Colors.RED}0. Exit{Colors.ENDC}")
 
 def handle_choice(choice):
     """Handle the user's menu choice."""
@@ -623,32 +735,27 @@ def handle_choice(choice):
     elif choice == "2":
         switch_profile()
     elif choice == "3":
-        show_current()
-    elif choice == "4":
         list_profiles()
-    elif choice == "5":
+    elif choice == "4":
         remove_profile()
-    elif choice == "6":
+    elif choice == "5":
         test_connection()
-    elif choice == "7":
-        update_repository_url()
     elif choice == "0":
-        print(f"\n{Colors.GREEN}Cảm ơn bạn đã sử dụng Git Profile Manager!{Colors.ENDC}")
+        print(f"\n{Colors.GREEN}Thanks for using Git Profile Manager!{Colors.ENDC}")
         sys.exit(0)
     else:
-        print(f"\n{Colors.RED}Lựa chọn không hợp lệ!{Colors.ENDC}")
+        print(f"\n{Colors.RED}Invalid choice!{Colors.ENDC}")
     
-    input(f"\n{Colors.YELLOW}Nhấn Enter để tiếp tục...{Colors.ENDC}")
+    input(f"\n{Colors.YELLOW}Press Enter to continue...{Colors.ENDC}")
 
 def main():
     """Main program loop."""
     while True:
         clear_screen()
         print_header()
-        print_status_bar()
         print_menu()
         
-        choice = input(f"\n{Colors.BOLD}Nhập lựa chọn của bạn (0-7): {Colors.ENDC}").strip()
+        choice = input(f"\n{Colors.BOLD}Enter your choice (0-5): {Colors.ENDC}").strip()
         handle_choice(choice)
 
 if __name__ == '__main__':
