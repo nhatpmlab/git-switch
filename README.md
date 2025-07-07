@@ -2,9 +2,13 @@
 Đây là công cụ giúp switch github profile... 
 ## Cài đặt
 
-Chạy lệnh sau để cài đặt:
+Chạy một trong hai lệnh sau để cài đặt:
 
 ```bash
+# Cách 1 (ngắn gọn):
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/nhatpm3124/git-switch/main/install.sh)"
+
+# Cách 2 (đầy đủ):
 curl -o install.sh https://raw.githubusercontent.com/nhatpm3124/git-switch/main/install.sh && chmod +x install.sh && ./install.sh
 ```
 
