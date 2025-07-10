@@ -1,108 +1,241 @@
-# Git Profile Manager
-Đây là công cụ giúp switch github profile... 
-## Cài đặt
+# Git Profile Manager v2.0 🚀
 
-Chạy một trong hai lệnh sau để cài đặt:
+Công cụ mạnh mẽ giúp quản lý và chuyển đổi nhanh chóng giữa các tài khoản GitHub khác nhau trên máy local với giao diện đẹp mắt và tính năng nâng cao.
 
+## ✨ Tính năng mới v2.0
+
+- 🎨 **Giao diện ASCII art đẹp mắt** với SpringBoot-style header
+- 🔧 **Code được tối ưu hóa** - loại bỏ code duplication
+- 🛡️ **Bảo mật nâng cao** - hỗ trợ passphrase cho SSH keys
+- ✅ **Error handling tốt hơn** - xử lý lỗi chi tiết và hướng dẫn rõ ràng
+- 🌐 **Cross-platform hoàn toàn** - Windows, macOS, Linux
+- 📋 **Smart clipboard** - tự động copy SSH key với fallback
+- 🔍 **Validation** - kiểm tra định dạng email và username
+- ⚡ **Performance** - khởi động nhanh hơn, sử dụng ít tài nguyên
+- 🎯 **Direct run** - chạy trực tiếp từ GitHub mà không cần cài đặt
+
+## 🎯 Tính năng chính
+
+- 🔄 **Chuyển đổi profile nhanh chóng** giữa các GitHub accounts
+- 🔑 **Tự động tạo và quản lý SSH keys** (4096-bit RSA)
+- 📋 **Auto-copy SSH key vào clipboard** với support đa platform
+- 🌐 **Tự động mở GitHub SSH settings** 
+- 🔍 **Kiểm tra kết nối tự động** với troubleshooting tips
+- 🔄 **Tự động cập nhật URL repository** khi switch profile
+- 📱 **Giao diện menu thân thiện** với màu sắc đẹp mắt
+- 🛡️ **Validation input** - đảm bảo dữ liệu đúng định dạng
+
+## 📦 Cài đặt
+
+### 🚀 Cách 1: Chạy trực tiếp (Không cần cài đặt)
+
+#### **Linux / macOS:**
 ```bash
-# Cách 1 (ngắn gọn):
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/nhatpm3124/git-switch/main/install.sh)"
-
-# Cách 2 (đầy đủ):
-curl -o install.sh https://raw.githubusercontent.com/nhatpm3124/git-switch/main/install.sh && chmod +x install.sh && ./install.sh
+bash <(curl -fsSL https://raw.githubusercontent.com/nhatpm3124/git-switch/main/run_git_profiles.sh)
 ```
 
-
-Lưu ý: 
-1. Chạy project tại terminal trong repo -> nếu bạn muốn switch người push code trong dự án
-2. Chạy project tại terminal ngoài repo -> nếu bạn muốn setup ssh key mới
-
-
-### Thêm profile mới
-
-1. Chọn tùy chọn 1
-2. Nhập thông tin:
-   - Username GitHub (dùng làm tên profile và tên người dùng Git)
-   - Email Git
-3. Chương trình sẽ:
-   - Tạo SSH key
-   - Tự động copy key vào clipboard
-   - Mở trang GitHub SSH settings
-   - Kiểm tra kết nối
-
-### Chuyển đổi profile
-
-1. Chọn tùy chọn 2
-2. Chọn profile muốn chuyển sang
-3. Chương trình sẽ:
-   - Cập nhật Git config
-   - Tự động cập nhật URL repository (nếu có)
-   - Kiểm tra kết nối
-
-### Kiểm tra kết nối
-
-1. Chọn tùy chọn 6
-2. Chương trình sẽ:
-   - Kiểm tra kết nối với GitHub
-   - Hiển thị kết quả chi tiết
-   - Gợi ý cách khắc phục nếu có lỗi
-
-### Cập nhật URL repository
-
-1. Chọn tùy chọn 7
-2. Chương trình sẽ:
-   - Phát hiện URL hiện tại
-   - Tự động chuyển đổi sang định dạng mới
-   - Kiểm tra kết nối
-
-## Cấu trúc URL repository
-
-Khi clone repository mới, sử dụng URL dạng:
-```bash
-git@github.com-<profile>:username/repository.git
+#### **Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/nhatpm3124/git-switch/main/run_git_profiles.ps1 | iex
 ```
 
-Ví dụ:
+#### **Windows Git Bash:**
 ```bash
-# Profile: nhatpm3124
-git@github.com-nhatpm3124:nhatpm3124/git-switch.git
+bash <(curl -fsSL https://raw.githubusercontent.com/nhatpm3124/git-switch/main/run_git_profiles.sh)
 ```
 
-## Cập nhật
+### 🏠 Cách 2: Cài đặt vĩnh viễn
 
-Để cập nhật lên phiên bản mới nhất:
+#### **One-line install (Khuyến nghị):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/nhatpm3124/git-switch/main/install.sh | bash
+```
+
+#### **Cài đặt thủ công:**
+```bash
+# Tải installer
+curl -o install.sh https://raw.githubusercontent.com/nhatpm3124/git-switch/main/install.sh
+chmod +x install.sh
+./install.sh
+```
+
+## 🎮 Sử dụng
+
+### 💫 Direct Run (Chạy trực tiếp)
+- **Ưu điểm**: Không cần cài đặt, tự động cleanup, luôn phiên bản mới nhất
+- **Nhược điểm**: Cần internet để khởi động, tốc độ khởi động chậm hơn
+
+### 🏠 Permanent Install (Cài đặt vĩnh viễn)
+- `git-profile` - Khởi động chương trình
+- `git-profile-update` - Cập nhật phiên bản mới
+
+### 🐍 Chạy trực tiếp bằng Python
+```bash
+python3 ~/.git-profile-manager/git_profiles.py
+```
+
+## 💻 Hỗ trợ đa nền tảng
+
+### 🐧 **Linux**
+- ✅ Đầy đủ tính năng
+- ✅ ANSI colors
+- ✅ Clipboard support (xclip/xsel/wl-copy)
+- ✅ SSH key permissions
+
+### 🍎 **macOS** 
+- ✅ Đầy đủ tính năng
+- ✅ Native clipboard (pbcopy)
+- ✅ Browser integration
+- ✅ SSH key permissions
+
+### 🪟 **Windows**
+- ✅ **Windows 10+ PowerShell** - Hỗ trợ đầy đủ
+- ✅ **Git Bash** - Hỗ trợ đầy đủ 
+- ✅ **Command Prompt** - Cơ bản
+- ✅ ANSI colors (Windows 10+)
+- ✅ PowerShell clipboard
+- ✅ Native Windows paths
+
+#### **Windows Requirements:**
+- Windows 10+ (khuyến nghị)
+- Python 3.6+
+- Git for Windows
+- OpenSSH Client (Windows 10+) hoặc Git Bash
+
+## 📋 Lưu ý quan trọng
+
+### 🎯 Khi nào chạy ở đâu:
+
+1. **Trong repository** → Switch người push code trong dự án hiện tại
+   ```bash
+   cd my-project
+   git-profile  # Chuyển đổi và tự động cập nhật remote URL
+   ```
+
+2. **Ngoài repository** → Setup SSH key mới hoặc quản lý profiles
+   ```bash
+   cd ~
+   git-profile  # Thêm profile mới, quản lý SSH keys
+   ```
+
+### 🔧 Tính năng tự động:
+
+- **Auto-update repository URL**: Khi switch profile trong Git repo, URL sẽ tự động được cập nhật
+- **Smart SSH config**: Tự động thêm Host config cho từng profile
+- **Connection testing**: Kiểm tra kết nối GitHub sau khi setup
+- **Clipboard integration**: Tự động copy SSH key để paste vào GitHub
+- **Cross-platform paths**: Tự động xử lý đường dẫn Windows/Unix
+
+## 🖥️ Giao diện mới
+
+```
+   _______ _____ _______     ____  ____   ____  ______ _____ __    _____ _____
+  / ____(_) __/_  __(_)    / __ \/ __ \ / __ \/ ____//   _// /   / ___// ___/
+ / / __/ / /_   / /       / /_/ / /_/ // / / / /_    / / / /    \__ \ \__ \ 
+/ /_/ / / __/  / /       / ____/ _, _// /_/ / __/  _/ / / /___ ___/ /___/ / 
+\____/_/_/    /_/       /_/   /_/ |_|\____/_/    /___//_____//____//____/  
+
+                    🚀 Git Profile Manager v2.0 🚀
+              Switch between multiple GitHub accounts seamlessly
+
+Current Profile:
+📝 Name: username
+📧 Email: user@example.com
+👤 Profile: username
+
+Choose an option:
+1. 📝 Add new profile
+2. 🔄 Switch profile (2 available)
+3. 👁️  Show current profile
+4. 📋 List all profiles (2)
+5. 🗑️  Remove profile
+6. 🔗 Test GitHub connection
+7. 🌐 Update repository URL
+0. 🚪 Exit
+```
+
+## 🛠️ Requirements
+
+### **Cơ bản:**
+- **Python 3.6+** (sử dụng Python standard library)
+- **Git** 
+- **Internet connection** (để tải về và connect GitHub)
+
+### **Cho SSH features:**
+- **ssh-keygen** (OpenSSH client)
+- **Linux**: Thường có sẵn
+- **macOS**: Có sẵn
+- **Windows**: OpenSSH Client hoặc Git for Windows
+
+### **Cho clipboard features:**
+- **Linux**: xclip, xsel, hoặc wl-copy
+- **macOS**: pbcopy (có sẵn)
+- **Windows**: PowerShell hoặc clip (có sẵn)
+
+## 🔧 Cải thiện từ v1.0
+
+### 🎯 Code Quality
+- ✅ Loại bỏ code duplication (từ 3 files xuống 2 files)
+- ✅ Class-based architecture với proper error handling
+- ✅ Type hints và consistent code style
+- ✅ Cross-platform compatibility layer
+
+### 🛡️ Security
+- ✅ Support passphrase cho SSH keys
+- ✅ Proper file permissions (Unix) và Windows compatibility
+- ✅ Input validation và safe subprocess calls
+- ✅ Secure temporary file handling
+
+### 💫 User Experience  
+- ✅ Beautiful ASCII art interface với ANSI colors
+- ✅ Platform-specific troubleshooting tips
+- ✅ Better error messages với context
+- ✅ Progress indicators và confirmation prompts
+
+### 🚀 Performance & Deployment
+- ✅ Faster startup time và efficient operations
+- ✅ No external dependencies (chỉ Python stdlib)
+- ✅ Direct run option - không cần install
+- ✅ Auto-cleanup và proper resource management
+
+## 🌍 Cross-Platform Testing
+
+| Feature | Linux | macOS | Windows 10+ | Windows <10 |
+|---------|-------|-------|-------------|-------------|
+| Core functionality | ✅ | ✅ | ✅ | ✅ |
+| ANSI colors | ✅ | ✅ | ✅ | ❌ |
+| Clipboard copy | ✅ | ✅ | ✅ | ✅ |
+| SSH key generation | ✅ | ✅ | ✅ | ⚠️ |
+| Browser integration | ✅ | ✅ | ✅ | ✅ |
+| Direct run script | ✅ | ✅ | ✅ | ⚠️ |
+
+✅ Hoàn toàn hỗ trợ | ⚠️ Hỗ trợ cơ bản | ❌ Không hỗ trợ
+
+## 🔄 Migration từ v1.0
+
+Git Profile Manager v2.0 hoàn toàn backward compatible với v1.0. Chỉ cần chạy lại installer để cập nhật:
+
 ```bash
 git-profile-update
 ```
 
-## Gỡ cài đặt
+Tất cả profiles và SSH keys hiện tại sẽ được giữ nguyên.
 
-Để gỡ cài đặt chương trình:
-```bash
-rm -rf ~/.git-profile-manager ~/.local/bin/git-profile ~/.local/bin/git-profile-update
-```
+## 🤝 Contributing
 
-## Lưu ý
+Contributions are welcome! Hãy tạo issue hoặc pull request.
 
-1. **SSH key**:
-   - Được lưu trong `~/.ssh/id_rsa_<profile>`
-   - Cấu hình được thêm vào `~/.ssh/config`
+### 🧪 Testing trên các platform:
+- **Linux**: Ubuntu, Debian, CentOS, Arch
+- **macOS**: macOS 10.15+
+- **Windows**: Windows 10+, PowerShell 5.1+
 
-2. **Git config**:
-   - Cấu hình được lưu trong Git global config
-   - Mỗi profile có user.name và user.email riêng
+## 📄 License
 
-3. **Repository URL**:
-   - Cần sử dụng đúng định dạng URL cho mỗi profile
-   - Chương trình sẽ tự động cập nhật khi chuyển profile
+MIT License - see LICENSE file for details.
 
-4. **Profiles**:
-   - Được lưu trong `~/.git_profiles.json`
-   - Mỗi profile có tên, email và SSH key riêng
+---
 
-## Hỗ trợ
+**Made with ❤️ for developers who work with multiple GitHub accounts**
 
-Nếu gặp vấn đề:
-1. Kiểm tra kết nối: `git-profile` > Tùy chọn 6
-2. Cập nhật phiên bản mới: `git-profile-update`
-3. Tạo issue trên GitHub: [New Issue](https://github.com/nhatpm3124/git-switch/issues/new) 
+🌟 **Star this repo if it helps you!** 🌟 
