@@ -1,5 +1,5 @@
 # Git Profile Manager - Direct Run Script for Windows PowerShell
-# Version: 2.0
+# Version: 2.1
 # Run directly from GitHub without installation
 
 param(
@@ -19,7 +19,7 @@ $Colors = @{
 
 function Write-Header {
     Write-Host "╔══════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║               Git Profile Manager v2.0                      ║" -ForegroundColor Cyan
+    Write-Host "║               Git Profile Manager v2.1                      ║" -ForegroundColor Cyan
     Write-Host "║               Direct Run from GitHub                        ║" -ForegroundColor Cyan  
     Write-Host "║                    (Windows)                               ║" -ForegroundColor Cyan
     Write-Host "╚══════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
