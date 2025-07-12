@@ -264,6 +264,6 @@ MIT License - see LICENSE file for details.
 ---
 
 **Made with ❤️ for developers who work with multiple GitHub accounts**
-**ALL COPYRIGHT BELONG TO NHATPM.SG!
+**ALL COPYRIGHT BELONG TO NHATPM.SG!**
 
 🌟 **Star this repo if it helps you!** 🌟 
