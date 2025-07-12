@@ -5,6 +5,37 @@ All notable changes to the Git Profile Manager project will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2024-01-15 (Menu Streamlining & Enhanced Deletion)
+
+### 🎯 Improved
+- **Menu Streamlining**: Removed redundant options 3 (Show current profile) and 4 (List all profiles)
+- **Renumbered Menu**: Cleaner 5-option menu (1-5, 0) instead of 7-option menu
+- **User Experience**: More focused interface with essential functions only
+
+### 🗑️ Enhanced
+- **Profile Deletion**: Complete overhaul of profile removal functionality
+- **Safety Warnings**: Clear preview of what will be deleted before confirmation
+- **Double Confirmation**: Type 'DELETE' + yes/no confirmation to prevent accidents
+- **Detailed Feedback**: Step-by-step progress during profile removal process
+- **File Verification**: Accurately finds and removes SSH keys from disk with verification
+- **SSH Config Cleanup**: Proper removal of SSH configuration entries
+
+### ✨ Added
+- **Deletion Preview**: Shows exact files and configurations that will be removed
+- **Progress Indicators**: Real-time feedback during each deletion step
+- **File Existence Checks**: Verifies SSH key files exist before attempting removal
+- **Error Handling**: Graceful handling of missing files or permission issues
+
+### 🔧 Technical
+- **Code Cleanup**: Removed unused methods (show_current, list_profiles, etc.)
+- **Method Refactoring**: Split deletion process into focused, testable methods
+- **Better Error Messages**: More informative feedback for deletion operations
+
+### 🔒 Security
+- **Safer Deletion**: Multiple confirmation steps prevent accidental profile removal
+- **File Verification**: Ensures SSH keys are actually found and removed from disk
+- **Clear Warnings**: Explicit messaging about permanent deletion consequences
+
 ## [2.1.0] - 2024-01-15 (Code Cleanup & Optimization)
 
 ### 🔧 Refactored
@@ -109,6 +140,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Migration Guide
 
+### From v2.1.0 to v2.2.0
+- **Menu Changes**: Options 3 and 4 removed, remaining options renumbered
+- **Enhanced Deletion**: New confirmation process (type 'DELETE' + yes/no)
+- **Better Feedback**: More detailed progress messages during operations
+- **Backward Compatibility**: All existing profiles and SSH keys preserved
+
 ### From v2.0.0 to v2.1.0
 - **No breaking changes**: All existing functionality preserved
 - **Config Compatibility**: Existing `.git_profiles.json` files work unchanged
@@ -116,6 +153,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Scripts**: All existing scripts continue to work
 
 ### For Developers
+- **Menu System**: Updated menu structure with renumbered options (1-5, 0)
+- **Method Removal**: Removed show_current, list_profiles methods and helpers
+- **Deletion Methods**: New detailed deletion methods with verification
 - **Import Changes**: Updated import statements in `git_profiles.py`
 - **Method Names**: Some internal method names changed (private methods only)
 - **Type Hints**: Added type hints may require Python 3.6+

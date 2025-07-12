@@ -28,7 +28,7 @@ class GitProfileCLI:
 {colors.GREEN}/ /_/ / / __/  / /       {colors.CYAN}/ ____/ _, _// /_/ / __/  _/ / / /___ ___/ /___/ / 
 {colors.GREEN}\____/_/_/    /_/       {colors.CYAN}/_/   /_/ |_|\____/_/    /___//_____//____/  
 {colors.ENDC}
-{colors.BOLD}{colors.CYAN}                    🚀 Git Profile Manager v2.1 🚀{colors.ENDC}
+{colors.BOLD}{colors.CYAN}                    🚀 Git Profile Manager v2.2 🚀{colors.ENDC}
 {colors.YELLOW}              Switch between multiple GitHub accounts seamlessly{colors.ENDC}
 """
         print(header)
@@ -72,11 +72,9 @@ class GitProfileCLI:
         menu_items = [
             ("1", "📝 Add new profile", colors.GREEN),
             ("2", "🔄 Switch profile", colors.BLUE, profile_count),
-            ("3", "👁️  Show current profile", colors.CYAN),
-            ("4", "📋 List all profiles", colors.YELLOW, profile_count),
-            ("5", "🗑️  Remove profile", colors.RED),
-            ("6", "🔗 Test GitHub connection", colors.BLUE),
-            ("7", "🌐 Update repository URL", colors.CYAN),
+            ("3", "🗑️  Remove profile", colors.RED),
+            ("4", "🔗 Test GitHub connection", colors.BLUE),
+            ("5", "🌐 Update repository URL", colors.CYAN),
             ("0", "🚪 Exit", colors.RED),
         ]
         
@@ -233,32 +231,6 @@ class GitProfileCLI:
             print(f"\n{colors.CYAN}Testing GitHub connection...{colors.ENDC}")
             self.manager.test_github_connection(username)
     
-    def show_current(self) -> None:
-        """Show current Git configuration."""
-        config = self.manager.get_current_git_config()
-        
-        if not config:
-            self.manager.print_error("No Git configuration found!")
-            return
-        
-        self.manager.print_header("Current Git Configuration")
-        self._display_current_config(config)
-    
-    def _display_current_config(self, config: Dict[str, str]) -> None:
-        """Display current configuration details."""
-        print(f"{colors.GREEN}Name: {config['name']}{colors.ENDC}")
-        print(f"{colors.BLUE}Email: {config['email']}{colors.ENDC}")
-        
-        # Find matching profile
-        profiles = self.manager.load_profiles()
-        matching_profile = self._find_profile_by_config(config, profiles)
-        
-        if matching_profile:
-            username, profile = matching_profile
-            print(f"{colors.YELLOW}Profile: {username}{colors.ENDC}")
-            if 'ssh_key' in profile:
-                print(f"{colors.CYAN}SSH Key: {profile['ssh_key']}{colors.ENDC}")
-    
     def _find_profile_by_config(self, config: Dict[str, str], profiles: Dict[str, Any]) -> Optional[tuple]:
         """Find profile that matches the current config."""
         for username, profile in profiles.items():
@@ -267,59 +239,130 @@ class GitProfileCLI:
                 return username, profile
         return None
     
-    def list_profiles(self) -> None:
-        """List all saved profiles."""
-        profiles = self.manager.load_profiles()
-        
-        if not profiles:
-            self.manager.print_error("No profiles found!")
-            return
-        
-        self.manager.print_header("All Profiles")
-        for username, profile in profiles.items():
-            self._display_profile_info(username, profile)
-    
-    def _display_profile_info(self, username: str, profile: Dict[str, Any]) -> None:
-        """Display information for a single profile."""
-        print(f"\n{colors.YELLOW}Profile: {username}{colors.ENDC}")
-        print(f"{colors.GREEN}  Name: {profile['name']}{colors.ENDC}")
-        print(f"{colors.BLUE}  Email: {profile['email']}{colors.ENDC}")
-        if 'ssh_key' in profile:
-            print(f"{colors.CYAN}  SSH Key: {profile['ssh_key']}{colors.ENDC}")
-    
     def remove_profile(self) -> None:
-        """Remove a Git profile."""
+        """Remove a Git profile completely from the system."""
         profiles = self.manager.load_profiles()
         
         if not profiles:
             self.manager.print_error("No profiles to remove!")
             return
         
-        self.manager.print_header("Remove Profile")
+        self.manager.print_header("Remove Git Profile")
         self._list_available_profiles(profiles)
         
-        username = input(f"\n{colors.CYAN}Enter profile name to remove: {colors.ENDC}").strip()
+        username = input(f"\n{colors.CYAN}Enter profile name to PERMANENTLY DELETE: {colors.ENDC}").strip()
         
         if not self._validate_profile_for_removal(username, profiles):
             return
         
-        if not self._confirm_removal(username):
+        # Show what will be deleted
+        profile = profiles[username]
+        self._show_deletion_preview(username, profile)
+        
+        if not self._confirm_permanent_removal(username):
             return
         
-        profile = profiles[username]
+        # Perform deletion with detailed feedback
+        self._perform_complete_profile_removal(username, profile, profiles)
+    
+    def _show_deletion_preview(self, username: str, profile: Dict[str, Any]) -> None:
+        """Show what will be deleted."""
+        print(f"\n{colors.YELLOW}⚠️  This will PERMANENTLY DELETE:{colors.ENDC}")
+        print(f"{colors.RED}  • Profile: {username}{colors.ENDC}")
+        print(f"{colors.RED}  • Name: {profile['name']}{colors.ENDC}")
+        print(f"{colors.RED}  • Email: {profile['email']}{colors.ENDC}")
         
-        # Handle current profile cleanup
-        self._cleanup_current_profile(username, profile)
+        if 'ssh_key' in profile:
+            ssh_key_path = Path(profile['ssh_key'])
+            print(f"{colors.RED}  • SSH Private Key: {ssh_key_path}{colors.ENDC}")
+            print(f"{colors.RED}  • SSH Public Key: {ssh_key_path}.pub{colors.ENDC}")
+            print(f"{colors.RED}  • SSH Config entry for {username}{colors.ENDC}")
+    
+    def _confirm_permanent_removal(self, username: str) -> bool:
+        """Get explicit confirmation for permanent removal."""
+        print(f"\n{colors.RED}⚠️  WARNING: This action cannot be undone!{colors.ENDC}")
+        confirm1 = input(f"{colors.RED}Type 'DELETE' to confirm removal of '{username}': {colors.ENDC}").strip()
         
-        # Remove SSH keys and config
-        self._cleanup_ssh_files(username, profile)
+        if confirm1 != 'DELETE':
+            print(f"{colors.YELLOW}Profile removal cancelled.{colors.ENDC}")
+            return False
         
-        # Remove from profiles and save
+        confirm2 = input(f"{colors.RED}Are you absolutely sure? (yes/no): {colors.ENDC}").strip().lower()
+        if confirm2 != 'yes':
+            print(f"{colors.YELLOW}Profile removal cancelled.{colors.ENDC}")
+            return False
+        
+        return True
+    
+    def _perform_complete_profile_removal(self, username: str, profile: Dict[str, Any], profiles: Dict[str, Any]) -> None:
+        """Perform complete profile removal with detailed feedback."""
+        print(f"\n{colors.BLUE}🔄 Removing profile '{username}'...{colors.ENDC}")
+        
+        # Step 1: Clear current Git config if it matches
+        self._cleanup_current_profile_with_feedback(username, profile)
+        
+        # Step 2: Remove SSH keys with verification
+        self._cleanup_ssh_files_with_feedback(username, profile)
+        
+        # Step 3: Remove profile from config
         del profiles[username]
         if self.manager.save_profiles(profiles):
-            self.manager.print_success(f"Profile '{username}' removed successfully!")
+            self.manager.print_success(f"Profile configuration removed")
         else:
-            self.manager.print_error("Failed to save changes!")
+            self.manager.print_error("Failed to update profile configuration!")
+            return
+        
+        # Final success message
+        print(f"\n{colors.GREEN}✅ Profile '{username}' has been completely removed from your system!{colors.ENDC}")
+    
+    def _cleanup_current_profile_with_feedback(self, username: str, profile: Dict[str, Any]) -> None:
+        """Clean up current Git config with feedback."""
+        current_config = self.manager.get_current_git_config()
+        
+        if (current_config and 
+            current_config['name'] == profile['name'] and 
+            current_config['email'] == profile['email']):
+            
+            print(f"{colors.BLUE}🔄 Clearing global Git configuration...{colors.ENDC}")
+            self._clear_git_global_config()
+        else:
+            print(f"{colors.BLUE}ℹ️  Profile is not currently active, skipping Git config cleanup{colors.ENDC}")
+    
+    def _cleanup_ssh_files_with_feedback(self, username: str, profile: Dict[str, Any]) -> None:
+        """Clean up SSH files with detailed feedback and verification."""
+        if 'ssh_key' not in profile:
+            print(f"{colors.BLUE}ℹ️  No SSH key associated with this profile{colors.ENDC}")
+            return
+        
+        ssh_key_path = Path(profile['ssh_key'])
+        ssh_pub_path = Path(f"{ssh_key_path}.pub")
+        
+        print(f"{colors.BLUE}🔄 Removing SSH keys...{colors.ENDC}")
+        
+        # Remove private key
+        if ssh_key_path.exists():
+            try:
+                ssh_key_path.unlink()
+                self.manager.print_success(f"Removed private key: {ssh_key_path}")
+            except OSError as e:
+                self.manager.print_error(f"Failed to remove private key: {e}")
+        else:
+            self.manager.print_warning(f"Private key not found: {ssh_key_path}")
+        
+        # Remove public key
+        if ssh_pub_path.exists():
+            try:
+                ssh_pub_path.unlink()
+                self.manager.print_success(f"Removed public key: {ssh_pub_path}")
+            except OSError as e:
+                self.manager.print_error(f"Failed to remove public key: {e}")
+        else:
+            self.manager.print_warning(f"Public key not found: {ssh_pub_path}")
+        
+        # Remove SSH config entry
+        print(f"{colors.BLUE}🔄 Updating SSH configuration...{colors.ENDC}")
+        self.remove_from_ssh_config(username)
+        self.manager.print_success(f"Removed SSH config entry for {username}")
     
     def _validate_profile_for_removal(self, username: str, profiles: Dict[str, Any]) -> bool:
         """Validate profile exists for removal."""
@@ -327,24 +370,6 @@ class GitProfileCLI:
             self.manager.print_error(f"Profile '{username}' not found!")
             return False
         return True
-    
-    def _confirm_removal(self, username: str) -> bool:
-        """Confirm profile removal with user."""
-        confirm = input(f"{colors.RED}Are you sure you want to remove '{username}'? (y/N): {colors.ENDC}").strip().lower()
-        if confirm != 'y':
-            print(f"{colors.YELLOW}Removal cancelled.{colors.ENDC}")
-            return False
-        return True
-    
-    def _cleanup_current_profile(self, username: str, profile: Dict[str, Any]) -> None:
-        """Clean up current Git config if it matches the profile being removed."""
-        current_config = self.manager.get_current_git_config()
-        
-        if (current_config and 
-            current_config['name'] == profile['name'] and 
-            current_config['email'] == profile['email']):
-            
-            self._clear_git_global_config()
     
     def _clear_git_global_config(self) -> None:
         """Clear Git global configuration."""
@@ -354,26 +379,7 @@ class GitProfileCLI:
             self.manager.print_success("Cleared Git global configuration")
         except subprocess.CalledProcessError:
             self.manager.print_warning("Could not clear Git configuration")
-    
-    def _cleanup_ssh_files(self, username: str, profile: Dict[str, Any]) -> None:
-        """Clean up SSH keys and configuration."""
-        if 'ssh_key' not in profile:
-            return
-        
-        try:
-            # Remove SSH keys
-            ssh_key_path = Path(profile['ssh_key'])
-            ssh_key_path.unlink(missing_ok=True)
-            Path(f"{ssh_key_path}.pub").unlink(missing_ok=True)
-            
-            self.manager.print_success("Removed SSH keys")
-            
-            # Remove from SSH config
-            self.remove_from_ssh_config(username)
-            
-        except OSError as e:
-            self.manager.print_warning(f"Could not remove SSH keys: {e}")
-    
+
     def remove_from_ssh_config(self, username: str) -> None:
         """Remove profile from SSH config."""
         config_file = Path.home() / '.ssh' / 'config'
@@ -541,11 +547,9 @@ class GitProfileCLI:
         menu_actions = {
             "1": self.add_profile,
             "2": self.switch_profile,
-            "3": self.show_current,
-            "4": self.list_profiles,
-            "5": self.remove_profile,
-            "6": self.test_connection,
-            "7": self.update_repository_url,
+            "3": self.remove_profile,
+            "4": self.test_connection,
+            "5": self.update_repository_url,
             "0": self._exit_program
         }
         
@@ -577,7 +581,7 @@ class GitProfileCLI:
                 self.print_status_bar()
                 self.print_menu()
                 
-                choice = input(f"\n{colors.BOLD}Enter your choice (0-7): {colors.ENDC}").strip()
+                choice = input(f"\n{colors.BOLD}Enter your choice (0-5): {colors.ENDC}").strip()
                 
                 if not self.handle_choice(choice):
                     break
