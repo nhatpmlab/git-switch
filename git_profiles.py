@@ -28,7 +28,7 @@ class GitProfileCLI:
 {colors.GREEN}/ /_/ / / __/  / /       {colors.CYAN}/ ____/ _, _// /_/ / __/  _/ / / /___ ___/ /___/ / 
 {colors.GREEN}\____/_/_/    /_/       {colors.CYAN}/_/   /_/ |_|\____/_/    /___//_____//____/  
 {colors.ENDC}
-{colors.BOLD}{colors.CYAN}                    🚀 Git Profile Manager v2.0 🚀{colors.ENDC}
+{colors.BOLD}{colors.CYAN}                    🚀 Git Profile Manager v2.1 🚀{colors.ENDC}
 {colors.YELLOW}              Switch between multiple GitHub accounts seamlessly{colors.ENDC}
 """
         print(header)

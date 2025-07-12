@@ -5,7 +5,7 @@ All notable changes to the Git Profile Manager project will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.1.0] - 2024-01-XX (Code Cleanup & Optimization)
+## [2.1.0] - 2024-01-15 (Code Cleanup & Optimization)
 
 ### 🔧 Refactored
 - **Code Structure**: Complete refactoring of `git_profile_manager.py` for better maintainability
@@ -132,4 +132,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 MIT License - See LICENSE file for details.
 
 ## Support
-For issues and questions, please visit: https://github.com/nhatpm3124/git-switch/issues 
+For issues and questions, please visit: https://github.com/nhatpm3124/git-switch/issues

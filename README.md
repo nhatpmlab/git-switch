@@ -1,8 +1,18 @@
-# Git Profile Manager v2.0 🚀
+# Git Profile Manager v2.1 🚀
 
 Công cụ mạnh mẽ giúp quản lý và chuyển đổi nhanh chóng giữa các tài khoản GitHub khác nhau trên máy local với giao diện đẹp mắt và tính năng nâng cao.
 
-## ✨ Tính năng mới v2.0
+## ✨ Tính năng mới v2.1
+
+- 🔧 **Code được tối ưu hóa hoàn toàn** - Refactored codebase với improved maintainability
+- 🎯 **Type hints đầy đủ** - Enhanced code với comprehensive type annotations
+- 🧹 **Clean code structure** - Modular design với single responsibility principle
+- ⚡ **Performance improvements** - Reduced complexity và better resource management
+- 🔒 **Enhanced security** - Better input validation và file handling
+- 📚 **Comprehensive documentation** - Improved docstrings và code comments
+- 🧪 **Better testability** - Smaller methods easier to test
+
+## ✨ Tính năng v2.0
 
 - 🎨 **Giao diện ASCII art đẹp mắt** với SpringBoot-style header
 - 🔧 **Code được tối ưu hóa** - loại bỏ code duplication
