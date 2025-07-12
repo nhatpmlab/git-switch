@@ -1,8 +1,16 @@
-# Git Profile Manager v2.2 🚀
+# Git Profile Manager v2.3 🚀
 
 Công cụ mạnh mẽ giúp quản lý và chuyển đổi nhanh chóng giữa các tài khoản GitHub khác nhau trên máy local với giao diện đẹp mắt và tính năng nâng cao.
 
-## ✨ Tính năng mới v2.2
+## ✨ Tính năng mới v2.3
+
+- ⚙️ **Settings Menu** - Nhóm các cài đặt vào một menu riêng
+- 🔄 **Check for updates** - Kiểm tra phiên bản mới tự động từ GitHub
+- 🎯 **Cleaner main menu** - Menu chính gọn gàng hơn với 4 options chính
+- 📱 **Better navigation** - Settings submenu với back button
+- 🔗 **Integrated tools** - Test connection và update URL trong Settings
+
+## ✨ Tính năng v2.2
 
 - 🎯 **Streamlined menu** - Removed redundant options (Show current, List profiles)
 - 🗑️ **Enhanced profile deletion** - Clear warnings, detailed feedback, and verified file removal

@@ -5,6 +5,38 @@ All notable changes to the Git Profile Manager project will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2024-01-15 (Settings Menu & Update Checker)
+
+### ⚙️ Added
+- **Settings Menu**: New dedicated settings submenu for better organization
+- **Update Checker**: Automatic version checking against GitHub releases
+- **Menu Navigation**: Back button functionality in settings submenu
+- **Release Integration**: Direct links to GitHub releases and update instructions
+
+### 🎯 Improved
+- **Main Menu**: Simplified to 4 core options (1-4, 0) for better UX
+- **Organization**: Grouped related settings (test connection, update URL) together
+- **Navigation Flow**: Cleaner separation between main actions and settings
+- **User Experience**: More intuitive menu structure with logical grouping
+
+### 🔄 Enhanced
+- **Update Process**: Built-in version checking with GitHub API integration
+- **Settings Access**: Consolidated settings in one easily accessible location
+- **Menu Structure**: More professional and organized interface layout
+- **Error Handling**: Better error handling for network requests in update checker
+
+### ✨ Features
+- **GitHub API Integration**: Checks latest releases automatically
+- **Version Comparison**: Compares current vs latest version
+- **Update Instructions**: Provides specific update commands based on installation type
+- **Offline Fallback**: Graceful handling when internet is unavailable
+
+### 🔧 Technical
+- **Menu System**: Refactored menu handling with submenu support
+- **API Integration**: Added urllib and json for GitHub API calls
+- **Code Organization**: Better separation of concerns between main and settings
+- **Version Management**: Centralized version handling
+
 ## [2.2.0] - 2024-01-15 (Menu Streamlining & Enhanced Deletion)
 
 ### 🎯 Improved

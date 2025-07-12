@@ -28,7 +28,7 @@ class GitProfileCLI:
 {colors.GREEN}/ /_/ / / __/  / /       {colors.CYAN}/ ____/ _, _// /_/ / __/  _/ / / /___ ___/ /___/ / 
 {colors.GREEN}\____/_/_/    /_/       {colors.CYAN}/_/   /_/ |_|\____/_/    /___//_____//____/  
 {colors.ENDC}
-{colors.BOLD}{colors.CYAN}                    🚀 Git Profile Manager v2.2 🚀{colors.ENDC}
+{colors.BOLD}{colors.CYAN}                    🚀 Git Profile Manager v2.3 🚀{colors.ENDC}
 {colors.YELLOW}              Switch between multiple GitHub accounts seamlessly{colors.ENDC}
 """
         print(header)
@@ -73,8 +73,7 @@ class GitProfileCLI:
             ("1", "📝 Add new profile", colors.GREEN),
             ("2", "🔄 Switch profile", colors.BLUE, profile_count),
             ("3", "🗑️  Remove profile", colors.RED),
-            ("4", "🔗 Test GitHub connection", colors.BLUE),
-            ("5", "🌐 Update repository URL", colors.CYAN),
+            ("4", "⚙️  Settings", colors.CYAN),
             ("0", "🚪 Exit", colors.RED),
         ]
         
@@ -548,8 +547,7 @@ class GitProfileCLI:
             "1": self.add_profile,
             "2": self.switch_profile,
             "3": self.remove_profile,
-            "4": self.test_connection,
-            "5": self.update_repository_url,
+            "4": self.show_settings,
             "0": self._exit_program
         }
         
@@ -567,6 +565,78 @@ class GitProfileCLI:
         
         return choice != "0"
     
+    def show_settings(self) -> None:
+        """Show settings submenu."""
+        while True:
+            self.manager.clear_screen()
+            self.manager.print_header("Settings")
+            
+            print(f"\n{colors.BOLD}Settings Menu:{colors.ENDC}")
+            print(f"{colors.BLUE}1. 🔗 Test GitHub connection{colors.ENDC}")
+            print(f"{colors.CYAN}2. 🌐 Update repository URL{colors.ENDC}")
+            print(f"{colors.YELLOW}3. 🔄 Check for updates{colors.ENDC}")
+            print(f"{colors.RED}0. ⬅️  Back to main menu{colors.ENDC}")
+            
+            choice = input(f"\n{colors.BOLD}Enter your choice (0-3): {colors.ENDC}").strip()
+            
+            if choice == "1":
+                self.test_connection()
+                input(f"\n{colors.YELLOW}Press Enter to continue...{colors.ENDC}")
+            elif choice == "2":
+                self.update_repository_url()
+                input(f"\n{colors.YELLOW}Press Enter to continue...{colors.ENDC}")
+            elif choice == "3":
+                self.check_for_updates()
+                input(f"\n{colors.YELLOW}Press Enter to continue...{colors.ENDC}")
+            elif choice == "0":
+                break
+            else:
+                self.manager.print_error("Invalid choice!")
+                input(f"\n{colors.YELLOW}Press Enter to continue...{colors.ENDC}")
+    
+    def check_for_updates(self) -> None:
+        """Check for available updates."""
+        self.manager.print_header("Check for Updates")
+        
+        try:
+            import urllib.request
+            import json
+            
+            print(f"{colors.BLUE}🔄 Checking for updates...{colors.ENDC}")
+            
+            # Get current version
+            current_version = "2.3.0"
+            print(f"{colors.GREEN}Current version: v{current_version}{colors.ENDC}")
+            
+            # Check GitHub releases API
+            try:
+                with urllib.request.urlopen("https://api.github.com/repos/nhatpm3124/git-switch/releases/latest") as response:
+                    data = json.loads(response.read().decode())
+                    latest_version = data.get('tag_name', '').lstrip('v')
+                    release_url = data.get('html_url', '')
+                    
+                    print(f"{colors.CYAN}Latest version: v{latest_version}{colors.ENDC}")
+                    
+                    if latest_version and latest_version != current_version:
+                        print(f"\n{colors.YELLOW}🎉 A new version is available!{colors.ENDC}")
+                        print(f"{colors.BLUE}Release notes: {release_url}{colors.ENDC}")
+                        
+                        print(f"\n{colors.BOLD}To update:{colors.ENDC}")
+                        print(f"{colors.GREEN}• If installed: run 'git-profile-update'{colors.ENDC}")
+                        print(f"{colors.GREEN}• Direct run: Just run the script again for latest version{colors.ENDC}")
+                    else:
+                        print(f"\n{colors.GREEN}✅ You are using the latest version!{colors.ENDC}")
+                        
+            except Exception as e:
+                print(f"{colors.YELLOW}Could not check GitHub releases: {e}{colors.ENDC}")
+                print(f"\n{colors.CYAN}You can manually check at:{colors.ENDC}")
+                print(f"{colors.BLUE}https://github.com/nhatpm3124/git-switch/releases{colors.ENDC}")
+                
+        except ImportError:
+            print(f"{colors.YELLOW}Update check requires internet connection{colors.ENDC}")
+            print(f"\n{colors.CYAN}Please check manually at:{colors.ENDC}")
+            print(f"{colors.BLUE}https://github.com/nhatpm3124/git-switch/releases{colors.ENDC}")
+    
     def _exit_program(self) -> bool:
         """Exit the program gracefully."""
         print(f"\n{colors.GREEN}Thanks for using Git Profile Manager! 🚀{colors.ENDC}")
@@ -581,7 +651,7 @@ class GitProfileCLI:
                 self.print_status_bar()
                 self.print_menu()
                 
-                choice = input(f"\n{colors.BOLD}Enter your choice (0-5): {colors.ENDC}").strip()
+                choice = input(f"\n{colors.BOLD}Enter your choice (0-4): {colors.ENDC}").strip()
                 
                 if not self.handle_choice(choice):
                     break

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Git Profile Manager - Direct Run Script
-# Version: 2.2
+# Version: 2.3
 # Run directly from GitHub without installation
 
 set -e
@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 print_header() {
     echo -e "${CYAN}${BOLD}"
     echo "╔══════════════════════════════════════════════════════════════╗"
-    echo "║               Git Profile Manager v2.2                      ║"
+    echo "║               Git Profile Manager v2.3                      ║"
     echo "║               Direct Run from GitHub                        ║"
     echo "╚══════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
