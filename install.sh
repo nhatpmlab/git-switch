@@ -71,8 +71,8 @@ download_files() {
     cd "$TEMP_DIR"
     
     # Download main files
-    curl -fsSL "https://raw.githubusercontent.com/nhatpm3124/git-switch/main/git_profile_manager.py" -o git_profile_manager.py
-    curl -fsSL "https://raw.githubusercontent.com/nhatpm3124/git-switch/main/git_profiles.py" -o git_profiles.py
+    curl -fsSL "https://raw.githubusercontent.com/mraynersg/git-switch/main/git_profile_manager.py" -o git_profile_manager.py
+    curl -fsSL "https://raw.githubusercontent.com/mraynersg/git-switch/main/git_profiles.py" -o git_profiles.py
     
     print_success "Files downloaded successfully"
     echo "$TEMP_DIR"
@@ -126,7 +126,7 @@ setup_commands() {
     cat > "$install_dir/update.sh" << 'EOF'
 #!/bin/bash
 echo "🔄 Updating Git Profile Manager..."
-curl -fsSL https://raw.githubusercontent.com/nhatpm3124/git-switch/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/mraynersg/git-switch/main/install.sh | bash
 EOF
     chmod +x "$install_dir/update.sh"
     
