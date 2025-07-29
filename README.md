@@ -27,17 +27,17 @@ A powerful command-line tool for managing and switching between multiple GitHub 
 
 #### Linux / macOS
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/mraynersg/git-switch/main/run_git_profiles.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/nhatpmlab/git-switch/main/run_git_profiles.sh)
 ```
 
 #### Windows PowerShell
 ```powershell
-iwr -useb https://raw.githubusercontent.com/mraynersg/git-switch/main/run_git_profiles.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/nhatpmlab/git-switch/main/run_git_profiles.ps1 | iex
 ```
 
 #### Windows Git Bash
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/mraynersg/git-switch/main/run_git_profiles.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/nhatpmlab/git-switch/main/run_git_profiles.sh)
 ```
 
 ## Usage

@@ -96,13 +96,13 @@ run_git_profiles() {
     
     # Download main files
     print_info "Downloading git_profile_manager.py..."
-    if ! curl -fsSL "https://raw.githubusercontent.com/mraynersg/git-switch/main/git_profile_manager.py" -o git_profile_manager.py; then
+    if ! curl -fsSL "https://raw.githubusercontent.com/nhatpmlab/git-switch/main/git_profile_manager.py" -o git_profile_manager.py; then
         print_error "Failed to download git_profile_manager.py"
         cleanup_and_exit 1
     fi
     
     print_info "Downloading git_profiles.py..."
-    if ! curl -fsSL "https://raw.githubusercontent.com/mraynersg/git-switch/main/git_profiles.py" -o git_profiles.py; then
+    if ! curl -fsSL "https://raw.githubusercontent.com/nhatpmlab/git-switch/main/git_profiles.py" -o git_profiles.py; then
         print_error "Failed to download git_profiles.py"
         cleanup_and_exit 1
     fi
@@ -146,7 +146,7 @@ show_help() {
     echo "without installing it permanently on your system."
     echo ""
     echo -e "${BOLD}Usage:${NC}"
-    echo "  bash <(curl -fsSL https://raw.githubusercontent.com/mraynersg/git-switch/main/run_git_profiles.sh)"
+    echo "  bash <(curl -fsSL https://raw.githubusercontent.com/nhatpmlab/git-switch/main/run_git_profiles.sh)"
     echo ""
     echo -e "${BOLD}Options:${NC}"
     echo "  -h, --help     Show this help message"
@@ -174,7 +174,7 @@ fi
 # Check for install flag
 if [[ "$1" == "-i" || "$1" == "--install" ]]; then
     print_info "Running installer instead..."
-    curl -fsSL https://raw.githubusercontent.com/mraynersg/git-switch/main/install.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/nhatpmlab/git-switch/main/install.sh | bash
     exit $?
 fi
 

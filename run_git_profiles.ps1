@@ -134,7 +134,7 @@ function Start-GitProfiles {
         # Download main files
         Write-Info "Downloading git_profile_manager.py..."
         try {
-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/mraynersg/git-switch/main/git_profile_manager.py" -OutFile "git_profile_manager.py"
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/nhatpmlab/git-switch/main/git_profile_manager.py" -OutFile "git_profile_manager.py"
         } catch {
             Write-Error "Failed to download git_profile_manager.py"
             throw
@@ -142,7 +142,7 @@ function Start-GitProfiles {
         
         Write-Info "Downloading git_profiles.py..."
         try {
-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/mraynersg/git-switch/main/git_profiles.py" -OutFile "git_profiles.py"
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/nhatpmlab/git-switch/main/git_profiles.py" -OutFile "git_profiles.py"
         } catch {
             Write-Error "Failed to download git_profiles.py"
             throw
@@ -176,10 +176,10 @@ function Show-Help {
     Write-Host ""
     Write-Host "Usage:" -ForegroundColor White
     Write-Host "  # Download and run this script:"
-    Write-Host "  iwr -useb https://raw.githubusercontent.com/mraynersg/git-switch/main/run_git_profiles.ps1 | iex"
+    Write-Host "  iwr -useb https://raw.githubusercontent.com/nhatpmlab/git-switch/main/run_git_profiles.ps1 | iex"
     Write-Host ""
     Write-Host "  # Or save and run locally:"
-    Write-Host "  Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/mraynersg/git-switch/main/run_git_profiles.ps1' -OutFile 'run_git_profiles.ps1'"
+    Write-Host "  Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/nhatpmlab/git-switch/main/run_git_profiles.ps1' -OutFile 'run_git_profiles.ps1'"
     Write-Host "  .\run_git_profiles.ps1"
     Write-Host ""
     Write-Host "Options:" -ForegroundColor White
@@ -208,7 +208,7 @@ if ($Help) {
 
 if ($Install) {
     Write-Info "Running installer instead..."
-    iwr -useb https://raw.githubusercontent.com/mraynersg/git-switch/main/install.sh | bash
+    iwr -useb https://raw.githubusercontent.com/nhatpmlab/git-switch/main/install.sh | bash
     exit $LASTEXITCODE
 }
 
