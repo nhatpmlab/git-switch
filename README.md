@@ -23,6 +23,20 @@ A powerful command-line tool for managing and switching between multiple GitHub 
 
 ## Installation
 
+### 🍺 Homebrew (Recommended for macOS/Linux)
+
+```bash
+brew tap nhatpmlab/gitsw
+brew install gitsw
+```
+
+**Usage after Homebrew installation:**
+```bash
+gitsw                   # Launch Git Profile Manager
+git-profile            # Alternative command name
+git-profile-update     # Update to latest version
+```
+
 ### Quick Start (No Installation Required)
 
 #### Linux / macOS
@@ -42,13 +56,29 @@ bash <(curl -fsSL https://raw.githubusercontent.com/nhatpmlab/git-switch/main/ru
 
 ## Usage
 
-### Direct Run Method
-- **Advantages**: No installation required, automatic cleanup, always latest version
-- **Considerations**: Requires internet connection for startup, slightly slower initial launch
+### Installation Methods Comparison
 
-### Permanent Installation
-After installation, use these commands:
-- `git-profile` - Launch the application
+| Method | Advantages | Considerations |
+|--------|------------|----------------|
+| **Homebrew** | Easy installation, automatic updates, system integration | macOS/Linux only, requires Homebrew |
+| **Direct Run** | No installation required, automatic cleanup, always latest version | Requires internet connection for startup, slightly slower initial launch |
+| **Manual Install** | Full control, works offline after setup | Manual update process |
+
+### Permanent Installation Options
+
+#### Option 1: Homebrew (macOS/Linux)
+```bash
+brew tap nhatpmlab/gitsw
+brew install gitsw
+```
+
+#### Option 2: Manual Installation Script
+```bash
+curl -fsSL https://raw.githubusercontent.com/nhatpmlab/git-switch/main/install.sh | bash
+```
+
+**After installation, use these commands:**
+- `gitsw` or `git-profile` - Launch the application
 - `git-profile-update` - Update to the latest version
 
 ### Python Direct Execution
@@ -184,6 +214,7 @@ Enter your choice (0-4):
 | Feature | Linux | macOS | Windows 10+ | Windows <10 |
 |---------|-------|-------|-------------|-------------|
 | Core functionality | ✓ | ✓ | ✓ | ✓ |
+| Homebrew installation | ✓ | ✓ | ✗ | ✗ |
 | ANSI colors | ✓ | ✓ | ✓ | ✗ |
 | Clipboard copy | ✓ | ✓ | ✓ | ✓ |
 | SSH key generation | ✓ | ✓ | ✓ | Limited |
