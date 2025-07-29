@@ -229,4 +229,4 @@ MIT License - see LICENSE file for details.
 
 **Designed for developers managing multiple GitHub accounts**
 
-**Copyright © NHATPM.SG**
+**Copyright © NHATPM.LAB**
